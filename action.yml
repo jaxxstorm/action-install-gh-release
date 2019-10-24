@@ -1,0 +1,10 @@
+name: "Install tf2pulumi"
+description: "Install tf2pulumi in a GitHub Actions build environment"
+author: "James Nugent"
+inputs:
+  tf2pulumi-version:
+    description: "Version of tf2pulumi to install"
+    default: "0.6.0"
+runs:
+  using: 'node12'
+  main: 'lib/main.js'
