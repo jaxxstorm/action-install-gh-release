@@ -8,7 +8,7 @@ The `tf2pulumi` binary is installed at `~/.tf2pulumi`, and the directory is adde
 
 ```yaml
 - name: Install tf2pulumi
-  uses: pulumi/install-tf2pulumi@releases/v1
+  uses: pulumi/action-install-tf2pulumi@releases/v1
   with:
     tf2pulumi-version: 0.6.0
 ```
