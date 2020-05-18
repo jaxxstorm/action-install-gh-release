@@ -8,8 +8,8 @@ inputs:
   binary_name:
     description: "Name of binary to install"
     required: true
-  version:
-    description: "Version of binary to install"
+  tag:
+    description: "tag containing binary to install"
     required: true
 runs:
   using: 'node12'

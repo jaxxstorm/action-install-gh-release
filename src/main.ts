@@ -33,10 +33,10 @@ async function run() {
             return;
         }
 
-        const version = core.getInput("version");
-        if (!version) {
+        const tag = core.getInput("tag");
+        if (!tag) {
             throw new Error(
-                `Binary version not specified`
+                `Tag not specified`
             )
         }
 
@@ -53,12 +53,12 @@ async function run() {
         const getReleaseUrl = await octokit.repos.getReleaseByTag({
             owner: owner,
             repo: project,
-            tag: version,
+            tag: tag,
         })
 
         console.log(getReleaseUrl.data)
 
-        const url = `https://github.com/${repo}/releases/download/v${version}/${binary}-v${version}-${osPlatform}-x64.tar.gz`
+        const url = `https://github.com/${repo}/releases/download/tag/${binary}-${tag}-${osPlatform}-x64.tar.gz`
         console.log(`Downloading ${binary} from ${url}`)
         const binPath = await tc.downloadTool(url);
         const extractedPath = await tc.extractTar(binPath, destination);

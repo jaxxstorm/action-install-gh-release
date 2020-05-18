@@ -17,7 +17,7 @@ jobs:
       - uses: ./
         with:
           repo: pulumi/tf2pulumi
-          version: 0.6.0
+          tag: v0.6.0
           binary_name: tf2pulumi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
