@@ -7,6 +7,12 @@ const mkdirp = require("mkdirp-promise");
 async function run() {
     try {
 
+        const repo = core.getInput("repo");
+        if (repo == undefined) {
+            core.setFailed("Must specify github repo");
+            return;
+        }
+
         const binary = core.getInput("binary_name");
         if (binary == undefined) {
             core.setFailed("Must specify binary name");
@@ -28,7 +34,7 @@ async function run() {
             return;
         }
 
-        const url = `https://github.com/pulumi/${binary}/releases/download/v${version}/${binary}-v${version}-${osPlatform}-x64.tar.gz`
+        const url = `https://github.com/${repo}/releases/download/v${version}/${binary}-v${version}-${osPlatform}-x64.tar.gz`
         const binPath = await tc.downloadTool(url);
         const extractedPath = await tc.extractTar(binPath, destination);
 
