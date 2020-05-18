@@ -22,14 +22,15 @@ async function run() {
             throw new Error(
                 `Repo was not specified`
             )
+            return;
         }
-        const [ owner, project ] = repo.split('/')
 
         const binary = core.getInput("binary_name");
         if (!binary) {
             throw new Error(
                 `Binary name not specified`
             )
+            return;
         }
 
         const version = core.getInput("version");
@@ -48,10 +49,11 @@ async function run() {
             return;
         }
 
-        const getReleaseUrl = await octokit.repos.getRelease({
-            owner,
-            project,
-            version,
+        const [owner, project] = repo.split("/")
+        const getReleaseUrl = await octokit.repos.getReleaseByTag({
+            owner: owner,
+            repo: project,
+            tag: version,
         })
 
         console.log(getReleaseUrl.data)
