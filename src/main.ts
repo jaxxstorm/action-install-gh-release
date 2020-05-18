@@ -6,9 +6,9 @@ const mkdirp = require("mkdirp-promise");
 
 async function run() {
     try {
-        const version = core.getInput("tf2pulumi-version");
+        const version = core.getInput("version");
         if (version == undefined) {
-            core.setFailed("tf2pulumi-version not specified");
+            core.setFailed("version not specified");
             return;
         }
 
