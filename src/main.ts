@@ -6,24 +6,31 @@ const mkdirp = require("mkdirp-promise");
 
 async function run() {
     try {
+
+        const binary = core.getInput("binary_name");
+        if (binary == undefined) {
+            core.setFailed("Must specify binary name");
+            return;
+        }
+
         const version = core.getInput("version");
         if (version == undefined) {
             core.setFailed("version not specified");
             return;
         }
 
-        const destination = "/home/runner/.tf2pulumi";
+        const destination = `/home/runner/.${binary}`;
         await mkdirp(destination);
 
         let osPlatform = os.platform();
         if (osPlatform != "linux" && osPlatform != "darwin") {
-            core.setFailed("Unsupported operating system - tf2pulumi is only released for Darwin and Linux");
+            core.setFailed(`Unsupported operating system - ${binary} is only released for Darwin and Linux`);
             return;
         }
 
-        const url = `https://github.com/pulumi/tf2pulumi/releases/download/v${version}/tf2pulumi-v${version}-${osPlatform}-x64.tar.gz`
-        const tf2pulumiPath = await tc.downloadTool(url);
-        const extractedPath = await tc.extractTar(tf2pulumiPath, destination);
+        const url = `https://github.com/pulumi/${binary}/releases/download/v${version}/${binary}-v${version}-${osPlatform}-x64.tar.gz`
+        const binPath = await tc.downloadTool(url);
+        const extractedPath = await tc.extractTar(binPath, destination);
 
         core.addPath(extractedPath);
     } catch (error) {
