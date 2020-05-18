@@ -45,7 +45,7 @@ async function run() {
 
         let osPlatform = os.platform();
         if (osPlatform != "linux" && osPlatform != "darwin") {
-            core.setFailed(`Unsupported operating system - ${binary} is only released for Darwin and Linux`);
+            core.setFailed(`Unsupported operating system - $this action is only released for Darwin and Linux`);
             return;
         }
 
@@ -65,8 +65,9 @@ async function run() {
             })
         }
 
+        let re = new RegExp(`${osPlatform}.*tar.gz`)
         let asset = getReleaseUrl.data.assets.find(obj => {
-            return obj.name.indexOf(osPlatform) !== -1
+            return re.test(obj.name)
         })
 
         if (!asset ) {
