@@ -23,6 +23,9 @@ jobs:
       - run: change-aws-credentials version
   tf2pulumi:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: ["v0.6.0", "v0.7.0", "v0.8.0" ]
     steps:
       - uses: actions/checkout@v1
       - run: npm ci
@@ -30,7 +33,7 @@ jobs:
       - uses: ./
         with:
           repo: pulumi/tf2pulumi
-          tag: v0.6.0
+          tag: ${{ matrix.version }}
           binary_name: tf2pulumi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
