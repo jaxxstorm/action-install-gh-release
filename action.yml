@@ -2,9 +2,12 @@ name: "Install a binary from GitHub releases"
 description: "Install binaries from GitHub releases"
 author: "Lee Briggs"
 inputs:
+  binary_name:
+    description: "Name of binary to install"
+    required: true
   version:
     description: "Version of binary to install"
-    default: "0.6.0"
+    required: true
 runs:
   using: 'node12'
   main: 'lib/main.js'
