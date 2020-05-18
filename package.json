@@ -1,21 +1,22 @@
 {
-  "name": "action-install-tf2pulumi",
+  "name": "action-install-gh-release",
   "version": "0.0.0",
   "private": true,
-  "description": "Install tf2pulumi in a GitHub Actions build environment",
+  "description": "Install a GitHub release binary in a GitHub Actions build environment",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/typescript-action.git"
+    "url": "git+https://github.com/jaxxstorm/action-install-gh-release.git"
   },
-  "author": "James Nugent",
-  "license": "MPLv2",
+  "author": "Lee Briggs",
+  "license": "Apache-2.0",
   "dependencies": {
     "@actions/core": "^1.2.0",
     "@actions/exec": "^1.0.1",
+    "@actions/github": "^2.2.0",
     "@actions/tool-cache": "^1.1.2",
     "mkdirp-promise": "^5.0.1"
   },

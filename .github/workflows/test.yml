@@ -7,14 +7,34 @@ on:
       - 'releases/*'
 
 jobs:
-  test:
+  change-aws-credentials:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-
       - run: npm ci
       - run: npm run build
       - uses: ./
         with:
-          tf2pulumi-version: 0.6.0
+          repo: jaxxstorm/change-aws-credentials
+          tag: v0.3.3
+          binary_name: change-aws-credentials
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: change-aws-credentials version
+  tf2pulumi:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: ["v0.6.0", "v0.7.0", "v0.8.0", "latest" ]
+    steps:
+      - uses: actions/checkout@v1
+      - run: npm ci
+      - run: npm run build
+      - uses: ./
+        with:
+          repo: pulumi/tf2pulumi
+          tag: ${{ matrix.version }}
+          binary_name: tf2pulumi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: tf2pulumi version

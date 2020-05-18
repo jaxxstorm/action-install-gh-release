@@ -1,10 +1,14 @@
-name: "Install tf2pulumi"
-description: "Install tf2pulumi in a GitHub Actions build environment"
-author: "James Nugent"
+name: "Install a binary from GitHub releases"
+description: "Install binaries from GitHub releases"
+author: "Lee Briggs"
 inputs:
-  tf2pulumi-version:
-    description: "Version of tf2pulumi to install"
-    default: "0.6.0"
+  repo:
+    description: "GitHub repo where binary is located"
+    required: true
+  tag:
+    description: "tag containing binary to install"
+    default: latest
+    required: true
 runs:
   using: 'node12'
   main: 'lib/main.js'
