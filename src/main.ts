@@ -56,9 +56,12 @@ async function run() {
             tag: tag,
         })
 
-        console.log(getReleaseUrl.data)
+        let url = getReleaseUrl.data.assets.filter(obj => {
+            return obj.browser_download_url.search(osPlatform)
+            }
+        )
 
-        const url = `https://github.com/${repo}/releases/download/${tag}/${binary}-${tag}-${osPlatform}-x64.tar.gz`
+        // const url = `https://github.com/${repo}/releases/download/${tag}/${binary}-${tag}-${osPlatform}-x64.tar.gz`
         console.log(`Downloading ${binary} from ${url}`)
         const binPath = await tc.downloadTool(url);
         const extractedPath = await tc.extractTar(binPath, destination);
