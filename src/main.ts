@@ -1,5 +1,6 @@
 import * as core from "@actions/core";
 import * as tc from "@actions/tool-cache";
+import * as github from "@actions/github";
 import * as os from "os";
 
 const mkdirp = require("mkdirp-promise");
@@ -7,12 +8,22 @@ const mkdirp = require("mkdirp-promise");
 async function run() {
     try {
 
+        // set up auth/environment
+        const token = process.env['GITHUB_TOKEN']
+        if (!token) {
+            throw new Error(
+                `No GitHub token found`
+            )
+        }
+        const octokit: github.GitHub = new github.GitHub(token)
+
         const repo = core.getInput("repo");
         if (!repo) {
             throw new Error(
                 `Repo was not specified`
             )
         }
+        const [ owner, project ] = repo.split('/')
 
         const binary = core.getInput("binary_name");
         if (!binary) {
@@ -22,7 +33,7 @@ async function run() {
         }
 
         const version = core.getInput("version");
-        if (version == undefined) {
+        if (!version) {
             throw new Error(
                 `Binary version not specified`
             )
@@ -36,6 +47,14 @@ async function run() {
             core.setFailed(`Unsupported operating system - ${binary} is only released for Darwin and Linux`);
             return;
         }
+
+        const getReleaseUrl = await octokit.repos.getRelease({
+            owner,
+            project,
+            version,
+        })
+
+        console.log(getReleaseUrl.data)
 
         const url = `https://github.com/${repo}/releases/download/v${version}/${binary}-v${version}-${osPlatform}-x64.tar.gz`
         console.log(`Downloading ${binary} from ${url}`)
