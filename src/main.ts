@@ -10,11 +10,8 @@ async function run() {
 
         // set up auth/environment
         const token = process.env['GITHUB_TOKEN']
-        if (!token) {
-            throw new Error(
-                `No GitHub token found`
-            )
-        }
+        if (!token) return
+        
         const octokit: github.GitHub = new github.GitHub(token)
 
         const repo = core.getInput("repo");
