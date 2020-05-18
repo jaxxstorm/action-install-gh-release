@@ -9,22 +9,23 @@ async function run() {
 
         const repo = core.getInput("repo");
         if (!repo) {
-            console.log("No repo!")
             throw new Error(
                 `Repo was not specified`
             )
         }
 
         const binary = core.getInput("binary_name");
-        if (binary == undefined) {
-            core.setFailed("Must specify binary name");
-            return;
+        if (!binary) {
+            throw new Error(
+                `Binary name not specified`
+            )
         }
 
         const version = core.getInput("version");
         if (version == undefined) {
-            core.setFailed("version not specified");
-            return;
+            throw new Error(
+                `Binary version not specified`
+            )
         }
 
         const destination = `/home/runner/.${binary}`;
@@ -37,6 +38,7 @@ async function run() {
         }
 
         const url = `https://github.com/${repo}/releases/download/v${version}/${binary}-v${version}-${osPlatform}-x64.tar.gz`
+        console.log(`Downloading ${binary} from ${url}`)
         const binPath = await tc.downloadTool(url);
         const extractedPath = await tc.extractTar(binPath, destination);
 

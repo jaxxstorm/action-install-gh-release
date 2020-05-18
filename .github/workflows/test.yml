@@ -16,6 +16,7 @@ jobs:
       - run: npm run build
       - uses: ./
         with:
+          repo: pulumi/tf2pulumi
           version: 0.6.0
           binary_name: tf2pulumi
       - run: tf2pulumi version
