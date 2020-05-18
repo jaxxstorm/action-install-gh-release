@@ -8,7 +8,7 @@ async function run() {
     try {
 
         const repo = core.getInput("repo");
-        if (repo == undefined) {
+        if (!repo) {
             console.log("No repo!")
             throw new Error(
                 `Repo was not specified`
