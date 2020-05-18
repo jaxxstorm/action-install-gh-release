@@ -9,8 +9,9 @@ async function run() {
 
         const repo = core.getInput("repo");
         if (repo == undefined) {
-            core.setFailed("Must specify github repo");
-            return;
+            throw new Error(
+                `Repo was not specified`
+            )
         }
 
         const binary = core.getInput("binary_name");
