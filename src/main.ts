@@ -32,6 +32,8 @@ async function run() {
             )
         }
 
+        const [owner, project] = repo.split("/")
+
         const destination = `/home/runner/.${project}`;
         await mkdirp(destination);
 
@@ -40,9 +42,7 @@ async function run() {
             core.setFailed(`Unsupported operating system - $this action is only released for Darwin and Linux`);
             return;
         }
-
-        const [owner, project] = repo.split("/")
-
+        
         let getReleaseUrl;
         if (tag === "latest") {
             getReleaseUrl = await octokit.repos.getLatestRelease({
