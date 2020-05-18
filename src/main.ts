@@ -56,10 +56,16 @@ async function run() {
             tag: tag,
         })
 
-        let assetsUrl = getReleaseUrl.data.assets.filter(obj => obj.browser_download_url.search(osPlatform)
-        )
+        let assetsUrl = getReleaseUrl.data.assets.find(obj => {
+            return obj.name.indexOf(osPlatform) !== -1
+        })
 
-        console.log(assetsUrl)
+        if (!assetsUrl ) {
+            const found = getReleaseUrl.data.assets.map(f => f.name)
+            throw new Error(
+                `Could not find a release for ${tag}. Found: ${found}`
+            )
+        }
 
         const url = `https://github.com/${repo}/releases/download/${tag}/${binary}-${tag}-${osPlatform}-x64.tar.gz`
         console.log(`Downloading ${binary} from ${url}`)
