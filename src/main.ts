@@ -50,11 +50,20 @@ async function run() {
         }
 
         const [owner, project] = repo.split("/")
-        const getReleaseUrl = await octokit.repos.getReleaseByTag({
-            owner: owner,
-            repo: project,
-            tag: tag,
-        })
+
+        let getReleaseUrl;
+        if (tag === "latest") {
+            getReleaseUrl = await octokit.repos.getLatestRelease({
+                owner: owner,
+                repo: project,
+            })
+        } else {
+            getReleaseUrl = await octokit.repos.getReleaseByTag({
+                owner: owner,
+                repo: project,
+                tag: tag,
+            })
+        }
 
         let asset = getReleaseUrl.data.assets.find(obj => {
             return obj.name.indexOf(osPlatform) !== -1
@@ -68,7 +77,7 @@ async function run() {
         }
 
         const url = asset.browser_download_url
-        //const url = `https://github.com/${repo}/releases/download/${tag}/${binary}-${tag}-${osPlatform}-x64.tar.gz`
+
         console.log(`Downloading ${binary} from ${url}`)
         const binPath = await tc.downloadTool(url);
         const extractedPath = await tc.extractTar(binPath, destination);

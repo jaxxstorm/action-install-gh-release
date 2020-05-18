@@ -15,7 +15,7 @@ jobs:
       - run: npm run build
       - uses: ./
         with:
-          repo: jaxxstorm/changes-aws-credentials
+          repo: jaxxstorm/change-aws-credentials
           tag: v0.3.3
           binary_name: change-aws-credentials
         env:
@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version: ["v0.6.0", "v0.7.0", "v0.8.0" ]
+        version: ["v0.6.0", "v0.7.0", "v0.8.0", "latest" ]
     steps:
       - uses: actions/checkout@v1
       - run: npm ci
