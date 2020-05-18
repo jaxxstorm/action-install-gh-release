@@ -25,14 +25,6 @@ async function run() {
             return;
         }
 
-        const binary = core.getInput("binary_name");
-        if (!binary) {
-            throw new Error(
-                `Binary name not specified`
-            )
-            return;
-        }
-
         const tag = core.getInput("tag");
         if (!tag) {
             throw new Error(
@@ -40,7 +32,7 @@ async function run() {
             )
         }
 
-        const destination = `/home/runner/.${binary}`;
+        const destination = `/home/runner/.${project}`;
         await mkdirp(destination);
 
         let osPlatform = os.platform();
@@ -79,7 +71,7 @@ async function run() {
 
         const url = asset.browser_download_url
 
-        console.log(`Downloading ${binary} from ${url}`)
+        console.log(`Downloading ${project} from ${url}`)
         const binPath = await tc.downloadTool(url);
         const extractedPath = await tc.extractTar(binPath, destination);
 

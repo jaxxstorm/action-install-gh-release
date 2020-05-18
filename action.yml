@@ -5,11 +5,9 @@ inputs:
   repo:
     description: "GitHub repo where binary is located"
     required: true
-  binary_name:
-    description: "Name of binary to install"
-    required: true
   tag:
     description: "tag containing binary to install"
+    default: latest
     required: true
 runs:
   using: 'node12'
