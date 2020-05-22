@@ -1,16 +1,20 @@
-# `install-tf2pulumi` GitHub Action
+# `install-install-gh-release` GitHub Action
 
-This repository contains an action for use with GitHub Actions, which installs a specified version of [`tf2pulumi`][1] on either MacOS or Linux.
+This repository contains an action for use with GitHub Actions, which will install any GitHub release into your action environment:
 
-The `tf2pulumi` binary is installed at `~/.tf2pulumi`, and the directory is added to `PATH`.
+This is especially useful when installing arbitrary Go binaries. It can lookup the latest version, or download a specific tag
 
 ## Usage
 
 ```yaml
+- name: Install go-task
+  uses: jaxxstorm/action-install-gh-release@release/v1-alpha
+  with: # Grab the latest version
+    repo: go-task/task
 - name: Install tf2pulumi
-  uses: pulumi/action-install-tf2pulumi@releases/v1
-  with:
-    tf2pulumi-version: 0.6.0
+  uses: jaxxstorm/action-install-gh-release@release/v1-alpha
+  with: # Grab a specific tag
+    repo: pulumi/tf2pulumi
+    tag: v0.7.0
 ```
 
-[1]: https://github.com/pulumi/tf2pulumi
