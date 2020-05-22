@@ -9,6 +9,9 @@ inputs:
     description: "tag containing binary to install"
     default: latest
     required: true
+branding:
+  icon: 'archive'  
+  color: 'green'
 runs:
   using: 'node12'
   main: 'lib/main.js'
