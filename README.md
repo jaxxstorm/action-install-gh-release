@@ -1,4 +1,4 @@
-# `install-install-gh-release` GitHub Action
+# `install-gh-release` GitHub Action
 
 This repository contains an action for use with GitHub Actions, which will install any GitHub release into your action environment:
 
