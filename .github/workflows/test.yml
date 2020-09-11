@@ -20,7 +20,6 @@ jobs:
         with:
           repo: jaxxstorm/change-aws-credentials
           tag: v0.3.3
-          binary_name: change-aws-credentials
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: change-aws-credentials version
@@ -38,7 +37,6 @@ jobs:
         with:
           repo: pulumi/tf2pulumi
           tag: ${{ matrix.version }}
-          binary_name: tf2pulumi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: tf2pulumi version
