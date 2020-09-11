@@ -34,9 +34,6 @@ async function run() {
 
         const [owner, project] = repo.split("/")
 
-        const destination = `/home/runner/.${project}`;
-        await mkdirp(destination);
-
         let osPlatform = os.platform();
         if (osPlatform != "linux" && osPlatform != "darwin") {
             core.setFailed(`Unsupported operating system - $this action is only released for Darwin and Linux`);
@@ -71,9 +68,10 @@ async function run() {
 
         const url = asset.browser_download_url
 
-        console.log(`Downloading ${project} from ${url}`)
+        core.info(`Downloading ${project} from ${url}`)
         const binPath = await tc.downloadTool(url);
-        const extractedPath = await tc.extractTar(binPath, destination);
+        let extractedPath = await tc.extractTar(binPath);
+        core.info(`Successfully extracted ${project} to ${extractedPath}`)
 
         core.addPath(extractedPath);
     } catch (error) {
