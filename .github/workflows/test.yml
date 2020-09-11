@@ -9,7 +9,8 @@ on:
 jobs:
   change-aws-credentials:
     strategy:
-      runs-on: [ "ubuntu-latest", "macos-latest" ]
+      matrix:
+        runs-on: [ "ubuntu-latest", "macos-latest" ]
     runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@v1
