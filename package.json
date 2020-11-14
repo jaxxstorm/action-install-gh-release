@@ -22,7 +22,7 @@
     "node-fetch": ">=2.6.1"
   },
   "devDependencies": {
-    "@types/node": "^12.12.58",
+    "@types/node": "^12.19.4",
     "typescript": "^3.9.7"
   }
 }
