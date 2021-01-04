@@ -54,7 +54,7 @@ async function run() {
             })
         }
 
-        let re = new RegExp(`${osPlatform}.*tar.gz`)
+        let re = new RegExp(`${osPlatform}.*tar.gz`, "i")
         let asset = getReleaseUrl.data.assets.find(obj => {
             return re.test(obj.name)
         })
