@@ -9,6 +9,9 @@ inputs:
     description: "tag containing binary to install"
     default: latest
     required: true
+  fileRegexp:
+    description: "the regexp to match the filename of the release to download"
+    required: false
 branding:
   icon: 'archive'  
   color: 'green'

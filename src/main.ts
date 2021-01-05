@@ -31,6 +31,7 @@ async function run() {
                 `Tag not specified`
             )
         }
+        const fileRegexp = core.getInput("fileRegexp");
 
         const [owner, project] = repo.split("/")
 
@@ -55,6 +56,10 @@ async function run() {
         }
 
         let re = new RegExp(`${osPlatform}.*tar.gz`, "i")
+	if (fileRegexp) {
+	    re = new RegExp(fileRegexp, "i")
+	}
+
         let asset = getReleaseUrl.data.assets.find(obj => {
             return re.test(obj.name)
         })
