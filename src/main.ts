@@ -34,12 +34,22 @@ async function run() {
 
         const [owner, project] = repo.split("/")
 
-        let osPlatform = os.platform();
-        if (osPlatform != "linux" && osPlatform != "darwin") {
-            core.setFailed(`Unsupported operating system - $this action is only released for Darwin and Linux`);
-            return;
+        let osPlatform = "";
+        switch (os.platform()) {
+            case "linux":
+                osPlatform = "linux";
+                break;
+            case "darwin":
+                osPlatform = "darwin";
+                break;
+            case "win32":
+                osPlatform = "windows";
+                break;
+            default:
+                core.setFailed("Unsupported operating system - $this action is only released for Darwin, Linux and Windows");
+                return;
         }
-        
+
         let getReleaseUrl;
         if (tag === "latest") {
             getReleaseUrl = await octokit.repos.getLatestRelease({
@@ -54,7 +64,7 @@ async function run() {
             })
         }
 
-        let re = new RegExp(`${osPlatform}.*tar.gz`)
+        let re = new RegExp(`${osPlatform}.${osPlatform == "windows" ? "*zip" : "*tar.gz"}`)
         let asset = getReleaseUrl.data.assets.find(obj => {
             return re.test(obj.name)
         })
