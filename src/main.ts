@@ -31,7 +31,6 @@ async function run() {
                 `Tag not specified`
             )
         }
-
         const [owner, project] = repo.split("/")
 
         let osPlatform = "";
@@ -50,6 +49,18 @@ async function run() {
                 return;
         }
 
+        // set up some arch regexs
+        let osArch = "";
+        switch (os.arch()) {
+            case "x64":
+                osArch = "(x64|amd64)"
+                break;
+            default:
+                osArch = os.arch()
+                return;
+
+        }
+
         let getReleaseUrl;
         if (tag === "latest") {
             getReleaseUrl = await octokit.repos.getLatestRelease({
@@ -64,8 +75,9 @@ async function run() {
             })
         }
 
-        let re = new RegExp(`${osPlatform}.${osPlatform == "windows" ? "*zip" : "*tar.gz"}`)
+        let re = new RegExp(`${osPlatform}.${osArch}.${osPlatform == "windows" ? "*zip" : "*tar.gz"}`)
         let asset = getReleaseUrl.data.assets.find(obj => {
+            core.info(`searching for ${obj.name} with ${re.source}`)
             return re.test(obj.name)
         })
 
