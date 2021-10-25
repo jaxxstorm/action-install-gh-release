@@ -7,6 +7,21 @@ on:
       - 'releases/*'
 
 jobs:
+  crd2pulumi:
+    strategy:
+      matrix:
+        runs-on: [ "ubuntu-latest", "macos-latest" ]
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@v1
+      - run: npm ci
+      - run: npm run build
+      - uses: ./
+        with:
+          repo: pulumi/crd2pulumi
+          tag: v1.0.10
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   change-aws-credentials:
     strategy:
       matrix:
