@@ -19,7 +19,7 @@
     "@actions/github": "^2.2.0",
     "@actions/tool-cache": "^1.7.1",
     "mkdirp-promise": "^5.0.1",
-    "node-fetch": ">=2.6.1"
+    "node-fetch": ">=3.1.1"
   },
   "devDependencies": {
     "@types/node": "^12.19.4",
