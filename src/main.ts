@@ -1,9 +1,10 @@
 import * as core from "@actions/core";
 import * as tc from "@actions/tool-cache";
-import * as github from "@actions/github";
+import { GitHub, getOctokitOptions} from "@actions/github/lib/utils";
 import * as os from "os";
+import { throttling } from "@octokit/plugin-throttling";
 
-const mkdirp = require("mkdirp-promise");
+const ThrottlingOctokit = GitHub.plugin(throttling);
 
 async function run() {
     try {
@@ -15,14 +16,31 @@ async function run() {
                 `No GitHub token found`
             )
         }
-        const octokit: github.GitHub = new github.GitHub(token)
+        const octokit = new ThrottlingOctokit({
+            throttle: {
+                onRateLimit: (retryAfter, options) => {
+                    core.warning(
+                      `RateLimit detected for request ${options.method} ${options.url}.`
+                    );
+                    core.info(`Retrying after ${retryAfter} seconds.`);
+                    return true;
+                },
+                onSecondaryRateLimit: (retryAfter, options) => {
+                    core.warning(
+                        `SecondaryRateLimit detected for request ${options.method} ${options.url}.`
+                    );
+                    core.info(`Retrying after ${retryAfter} seconds.`);
+                    return true;
+                },
+            },
+            ...getOctokitOptions(token),
+        })
 
         const repo = core.getInput("repo");
         if (!repo) {
             throw new Error(
                 `Repo was not specified`
             )
-            return;
         }
 
         const tag = core.getInput("tag");
@@ -63,12 +81,12 @@ async function run() {
 
         let getReleaseUrl;
         if (tag === "latest") {
-            getReleaseUrl = await octokit.repos.getLatestRelease({
+            getReleaseUrl = await octokit.rest.repos.getLatestRelease({
                 owner: owner,
                 repo: project,
             })
         } else {
-            getReleaseUrl = await octokit.repos.getReleaseByTag({
+            getReleaseUrl = await octokit.rest.repos.getReleaseByTag({
                 owner: owner,
                 repo: project,
                 tag: tag,
