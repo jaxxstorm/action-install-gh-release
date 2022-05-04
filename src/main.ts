@@ -49,34 +49,44 @@ async function run() {
                 `Tag not specified`
             )
         }
+
         const [owner, project] = repo.split("/")
 
-        let osPlatform = "";
-        switch (os.platform()) {
-            case "linux":
-                osPlatform = "linux";
-                break;
-            case "darwin":
-                osPlatform = "darwin";
-                break;
-            case "win32":
-                osPlatform = "windows";
-                break;
-            default:
-                core.setFailed("Unsupported operating system - $this action is only released for Darwin, Linux and Windows");
-                return;
+        let osMatch : string[] = []
+
+        // Determine Platform
+        let osPlatform = core.getInput("platform");
+        if (osPlatform === ""){
+            switch (os.platform()) {
+                case "linux":
+                    osPlatform = "linux";
+                    break;
+                case "darwin":
+                    osPlatform = "darwin";
+                    break;
+                case "win32":
+                    osPlatform = "windows";
+                    break;
+                default:
+                    core.setFailed("Unsupported operating system - $this action is only released for Darwin, Linux and Windows");
+                    return;
+            }
         }
+        osMatch.push(osPlatform)
 
-        // set up some arch regexs
-        let osArch = "";
-        switch (os.arch()) {
-            case "x64":
-                osArch = "(x64|amd64)"
-                break;
-            default:
-                osArch = os.arch()
-                return;
-
+        // Determine Architecture
+        let osArch = core.getInput("arch");
+        if (osArch === "") {
+            switch (os.arch()) {
+                case "x64":
+                    osMatch.push("x86_64", "x64", "amd64")
+                    break;
+                default:
+                    osMatch.push(os.arch())
+                    return;
+            }
+        } else {
+            osMatch.push(osArch)
         }
 
         let getReleaseUrl;
@@ -93,10 +103,12 @@ async function run() {
             })
         }
 
-        let re = new RegExp(`${osPlatform}.${osArch}.*\.(tar.gz|zip)`)
+        let osMatchRegexForm = `(${osMatch.join('|')})`
+        let re = new RegExp(`${osMatchRegexForm}.*${osMatchRegexForm}.*\.(tar.gz|zip)`)
         let asset = getReleaseUrl.data.assets.find(obj => {
             core.info(`searching for ${obj.name} with ${re.source}`)
-            return re.test(obj.name)
+            let normalized_obj_name = obj.name.toLowerCase()
+            return re.test(normalized_obj_name)
         })
 
         if (!asset ) {
