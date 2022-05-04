@@ -129,7 +129,6 @@ async function run() {
 
         core.addPath(extractedPath);
     } catch (error) {
-        let errorMessage = "Failed to download and extract release";
         if (error instanceof Error) {
             core.setFailed(error.message);
         } else {
