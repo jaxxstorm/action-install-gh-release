@@ -6,22 +6,54 @@ This is especially useful when installing arbitrary Go binaries. It can lookup t
 
 ## Usage
 
+This action requires a Github Token (`GITHUB_TOKEN`) in the environment to authenticate with.
+
+### Grab the Latest Version
+
 ```yaml
-- name: Install go-task
-  uses: jaxxstorm/action-install-gh-release@v1.5.0
-  with: # Grab the latest version
-    repo: go-task/task
-- name: Install tf2pulumi
-  uses: jaxxstorm/action-install-gh-release@v1.5.0
-  with: # Grab a specific tag
-    repo: pulumi/tf2pulumi
-    tag: v0.7.0
-- name: Install tfsec
-  uses: jaxxstorm/action-install-gh-release@v1.5.0
-  with: # Grab a specific platform and architecture
-    repo: aquasecurity/tfsec
-    platform: linux
-    arch: x86-64
+# ...
+steps:
+  - name: Install go-task
+    uses: jaxxstorm/action-install-gh-release@v1.5.0
+    with: # Grab the latest version
+      repo: go-task/task
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Github token scoped to step
+```
+
+### Grab a Specific Tags
+
+```yaml
+# ...
+jobs:
+  my_job:
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Github token scoped to job
+    steps:
+      - name: Install tf2pulumi
+        uses: jaxxstorm/action-install-gh-release@v1.5.0
+        with: # Grab a specific tag
+          repo: pulumi/tf2pulumi
+          tag: v0.7.0
+```
+
+### Grab a Specific Platform And/Or Architecture
+
+```yaml
+name: my_action
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Github token scoped to action
+
+jobs:
+  my_job:
+    steps:
+      - name: Install tfsec
+        uses: jaxxstorm/action-install-gh-release@v1.5.0
+        with: # Grab a specific platform and/or architecture
+          repo: aquasecurity/tfsec
+          platform: linux
+          arch: x86-64
 ```
 
 ## Finding a release
