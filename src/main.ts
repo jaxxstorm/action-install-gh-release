@@ -73,10 +73,13 @@ async function run() {
             }
         }
         osMatch.push(osPlatform)
+        core.info(`==> System reported platform: ${os.platform()}`)
+        core.info(`==> Using platform: ${osPlatform}`)
 
         // Determine Architecture
         let osArch = core.getInput("arch");
         if (osArch === "") {
+            osArch = os.arch()
             switch (os.arch()) {
                 case "x64":
                     osMatch.push("x86_64", "x64", "amd64")
@@ -88,6 +91,8 @@ async function run() {
         } else {
             osMatch.push(osArch)
         }
+        core.info(`==> System reported arch: ${os.arch()}`)
+        core.info(`==> Using arch: ${osArch}`)
 
         let getReleaseUrl;
         if (tag === "latest") {
