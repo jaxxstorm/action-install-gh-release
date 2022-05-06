@@ -60,7 +60,7 @@ jobs:
       matrix:
         version: ["v1.18.0", "v1.19.0", "latest"]
         runs-on: ["ubuntu-latest", "macos-latest", "windows-latest"]
-        arch: ["arm64", "amd64"]
+        arch: ["amd64"]
         include:
           - runs-on: "ubuntu-latest"
             plaform: linux
@@ -81,4 +81,4 @@ jobs:
           arch: ${{ matrix.arch }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: which tfsec
+      - run: tfsec --version
