@@ -167,7 +167,18 @@ async function run() {
         await extractFn(binPath, dest);
 
         if (cacheEnabled && cacheKey !== undefined) {
-            await cache.saveCache([dest], cacheKey);
+            try {
+                await cache.saveCache([dest], cacheKey);
+            } catch (error: unknown) {
+                const typedError = error as Error;
+                if (typedError.name === cache.ValidationError.name) {
+                    throw error;
+                } else if (typedError.name === cache.ReserveCacheError.name) {
+                    core.info(typedError.message);
+                } else {
+                    core.warning(typedError.message);
+                }
+            }
         }
 
         core.addPath(dest);
