@@ -169,7 +169,7 @@ async function run() {
         if (cacheEnabled && cacheKey !== undefined) {
             try {
                 await cache.saveCache([dest], cacheKey);
-            } catch (error: unknown) {
+            } catch (error) {
                 const typedError = error as Error;
                 if (typedError.name === cache.ValidationError.name) {
                     throw error;
