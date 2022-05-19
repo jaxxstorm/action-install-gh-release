@@ -94,6 +94,17 @@ async function run() {
         core.info(`==> System reported arch: ${os.arch()}`)
         core.info(`==> Using arch: ${osArch}`)
 
+        // For specific versions, that is unless we are installing
+        // latest, check the cache first.
+        if (tag !== "latest") {
+            let toolPath = tc.find(project, tag, `${osPlatform}-${osArch}`);
+            if (toolPath !== "") {
+                core.info(`Found ${project} in the tool cache: ${toolPath}`)
+                core.addPath(toolPath);
+                return;
+            }
+        }
+
         let getReleaseUrl;
         if (tag === "latest") {
             getReleaseUrl = await octokit.rest.repos.getLatestRelease({
@@ -130,9 +141,17 @@ async function run() {
         core.info(`Downloading ${project} from ${url}`)
         const binPath = await tc.downloadTool(url);
         const extractedPath = await extractFn(binPath);
-        core.info(`Successfully extracted ${project} to ${extractedPath}`)
 
-        core.addPath(extractedPath);
+        // For specific versions, that is unless we are installing
+        // latest, cache the extracted tool path.
+        if (tag !== "latest") {
+            let finalPath = await tc.cacheDir(extractedPath, project, tag, `${osPlatform}-${osArch}`);
+            core.addPath(finalPath);
+            core.info(`Successfully extracted ${project} to ${finalPath}`)
+        } else {
+            core.addPath(extractedPath);
+            core.info(`Successfully extracted ${project} to ${extractedPath}`)
+        }
     } catch (error) {
         if (error instanceof Error) {
             core.setFailed(error.message);
