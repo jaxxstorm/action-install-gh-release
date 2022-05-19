@@ -56,6 +56,28 @@ jobs:
           arch: x86-64
 ```
 
+### Caching
+
+This action can use [actions/cache](https://github.com/actions/cache) under the hood. Caching needs to be enabled explicitly and only works for specific tags.
+
+```yaml
+# ...
+jobs:
+  my_job:
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Github token scoped to job
+    steps:
+      - name: Install tf2pulumi
+        uses: jaxxstorm/action-install-gh-release@v1.5.0
+        with: # Grab a specific tag with caching
+          repo: pulumi/tf2pulumi
+          tag: v0.7.0
+          cache: enable
+```
+
+Caching helps avoid
+[Rate limiting](https://docs.github.com/en/rest/overview/resources-in-the-rest-api#requests-from-github-actions), since this action does not need to scan tags and releases on a cache hit. Caching currently is not expected to speed up installation.
+
 ## Finding a release
 
 By default, this action will lookup the Platform and Architecture of the runner and use those values to interpolate and match a release package. **The release package name is first converted to lowercase**. The match pattern is:
