@@ -15,6 +15,9 @@ inputs:
   arch:
     description: "OS Architecture to match in release package. Specify this parameter if the repository releases do not follow a normal convention otherwise it will be auto-detected."
     required: false
+  cache:
+    description: "When set to 'enable', caches the downloads of known tags with actions/cache"
+    required: false
 branding:
   icon: "archive"
   color: "green"
