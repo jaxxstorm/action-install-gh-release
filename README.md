@@ -72,6 +72,57 @@ steps:
 Caching helps avoid
 [Rate limiting](https://docs.github.com/en/rest/overview/resources-in-the-rest-api#requests-from-github-actions), since this action does not need to scan tags and releases on a cache hit. Caching currently is not expected to speed up installation.
 
+### Changing Release File Extensions
+
+As described below this action defaults to assuming that a release is either a `.tar.gz` or a `.zip` archive but this 
+may not always be true for all releases.  For example a project might release a pure binary, a different archive format,
+custom file extension etc.
+
+This action can change its extension matching behaviour via the `extension-matching` and `extension` parameters.  For 
+example to match on a `.bz2` extension:
+
+```yaml
+# ...
+jobs:
+  my_job:
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Github token scoped to job
+    steps:
+      - name: Install Mozilla grcov
+        uses: jaxxstorm/action-install-gh-release@v1.5.0
+        with: # Grab a specific file extension
+          repo: mozilla/grcov
+          tag: v0.8.12
+          extension: "\\.bz2"
+```
+
+Here the `extension` parameter is used to provide a regular expression for the file extension(s) you want to match.  If
+this is not specified then the action defaults to `\.(tag.gz|zip)`.  Since this a regular expression being embedded into
+YAML be aware that you may need to provide an extra level of character escaping, in the above example we have a `\\` 
+used in order to escape the backslash and get an actual `\.` (literal match of the period character) in the regular 
+expression passed into the action.
+
+Alternatively if a project produces pure binary releases with no file extension then you can install as follows:
+
+```yaml
+# ...
+jobs:
+  my_job:
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Github token scoped to job
+    steps:
+      - name: Install Open Telemetry Collector Builder (ocb)
+        uses: jaxxstorm/action-install-gh-release@v1.5.0
+        with: # Grab a pure binary
+          repo: open-telemetry/opentelemetry-collector
+          tag: v0.62.1
+          extension-matching: disable
+          rename-to: ocb
+          chmod: 0755
+```
+
+Note the use of the `rename-to` and `chmod` parameters to rename the downloaded binary and make it executable.
+
 ## Finding a release
 
 By default, this action will lookup the Platform and Architecture of the runner and use those values to interpolate and match a release package. **The release package name is first converted to lowercase**. The match pattern is:

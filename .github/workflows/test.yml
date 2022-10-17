@@ -1,6 +1,7 @@
 name: "Test typescript-action"
 on:
   pull_request:
+  workflow_dispatch:
   push:
     branches:
       - master
@@ -74,3 +75,58 @@ jobs:
           platform: ${{ matrix.platform }}
           arch: ${{ matrix.arch }}
       - run: tfsec --version
+  opentelemetry-ocb:
+    strategy:
+      matrix:
+        version: [ "v0.62.1", "v0.62.0", "latest" ]
+        runs-on: [ "ubuntu-latest", "macos-latest"]
+        arch: [ "amd64" ]
+        include:
+          - runs-on: "ubuntu-latest"
+            platform: linux
+          - runs-on: "macos-latest"
+            platform: darwin
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@v1
+      - run: npm ci
+      - run: npm run build
+      - uses: ./
+        with:
+          repo: open-telemetry/opentelemetry-collector
+          tag: ${{ matrix.version }}
+          platform: ${{ matrix.platform }}
+          arch: ${{ matrix.arch }}
+          extension-matching: disable
+          rename-to: ocb
+          chmod: 0755
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: ocb version
+  mozilla-grcov:
+    strategy:
+      matrix:
+        version: [ "v0.8.12", "v0.8.7", "latest" ]
+        runs-on: [ "ubuntu-latest", "macos-latest" ]
+        arch: [ "x86_64" ]
+        include:
+          - runs-on: "ubuntu-latest"
+            platform: linux
+          - runs-on: "macos-latest"
+            platform: darwin
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@v1
+      - run: npm ci
+      - run: npm run build
+      - uses: ./
+        with:
+          repo: mozilla/grcov
+          tag: ${{ matrix.version }}
+          platform: ${{ matrix.platform }}
+          arch: ${{ matrix.arch }}
+          extension: "\\.bz2"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: grcov --version
+
