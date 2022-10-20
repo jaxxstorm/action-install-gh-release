@@ -2,6 +2,9 @@ name: "Install a binary from GitHub releases"
 description: "Install binaries from GitHub releases"
 author: "Lee Briggs"
 inputs:
+  token:
+    description: 'GITHUB_TOKEN or a `repo` scoped Personal Access Token (PAT)'
+    default: ${{ github.token }}
   repo:
     description: "GitHub repo where binary is located"
     required: true

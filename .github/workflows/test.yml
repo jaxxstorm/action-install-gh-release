@@ -79,6 +79,4 @@ jobs:
           tag: ${{ matrix.version }}
           platform: ${{ matrix.platform }}
           arch: ${{ matrix.arch }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: tfsec --version
