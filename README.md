@@ -47,11 +47,11 @@ Use a `repo` scoped [Personal Access Token (PAT)](https://docs.github.com/en/git
 
 ```yaml
 steps:
-  - name: Install go-task
+  - name: Install private tool
     uses: jaxxstorm/action-install-gh-release@v1.5.0
     with: # Grab from a private repository
       token: ${{ secrets.MY_PAT }}
-      repo: go-task/task
+      repo: my-org/my-private-repo
 ```
 
 ### Caching
