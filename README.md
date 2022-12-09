@@ -6,8 +6,6 @@ This is especially useful when installing arbitrary Go binaries. It can lookup t
 
 ## Usage
 
-This action requires a Github Token (`GITHUB_TOKEN`) in the environment to authenticate with.
-
 ### Grab the Latest Version
 
 ```yaml
@@ -17,43 +15,43 @@ steps:
     uses: jaxxstorm/action-install-gh-release@v1.5.0
     with: # Grab the latest version
       repo: go-task/task
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Github token scoped to step
 ```
 
 ### Grab a Specific Tags
 
 ```yaml
 # ...
-jobs:
-  my_job:
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Github token scoped to job
-    steps:
-      - name: Install tf2pulumi
-        uses: jaxxstorm/action-install-gh-release@v1.5.0
-        with: # Grab a specific tag
-          repo: pulumi/tf2pulumi
-          tag: v0.7.0
+steps:
+  - name: Install tf2pulumi
+    uses: jaxxstorm/action-install-gh-release@v1.5.0
+    with: # Grab a specific tag
+      repo: pulumi/tf2pulumi
+      tag: v0.7.0
 ```
 
 ### Grab a Specific Platform And/Or Architecture
 
 ```yaml
-name: my_action
+steps:
+  - name: Install tfsec
+    uses: jaxxstorm/action-install-gh-release@v1.5.0
+    with: # Grab a specific platform and/or architecture
+      repo: aquasecurity/tfsec
+      platform: linux
+      arch: x86-64
+```
 
-env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Github token scoped to action
+### Grab from a private repository
 
-jobs:
-  my_job:
-    steps:
-      - name: Install tfsec
-        uses: jaxxstorm/action-install-gh-release@v1.5.0
-        with: # Grab a specific platform and/or architecture
-          repo: aquasecurity/tfsec
-          platform: linux
-          arch: x86-64
+Use a `repo` scoped [Personal Access Token (PAT)](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) that has been created on a user with access to the private repository.
+
+```yaml
+steps:
+  - name: Install private tool
+    uses: jaxxstorm/action-install-gh-release@v1.5.0
+    with: # Grab from a private repository
+      token: ${{ secrets.MY_PAT }}
+      repo: my-org/my-private-repo
 ```
 
 ### Caching
@@ -62,17 +60,13 @@ This action can use [actions/cache](https://github.com/actions/cache) under the 
 
 ```yaml
 # ...
-jobs:
-  my_job:
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Github token scoped to job
-    steps:
-      - name: Install tf2pulumi
-        uses: jaxxstorm/action-install-gh-release@v1.5.0
-        with: # Grab a specific tag with caching
-          repo: pulumi/tf2pulumi
-          tag: v0.7.0
-          cache: enable
+steps:
+  - name: Install tf2pulumi
+    uses: jaxxstorm/action-install-gh-release@v1.5.0
+    with: # Grab a specific tag with caching
+      repo: pulumi/tf2pulumi
+      tag: v0.7.0
+      cache: enable
 ```
 
 Caching helps avoid

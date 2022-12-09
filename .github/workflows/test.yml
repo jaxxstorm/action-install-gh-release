@@ -20,8 +20,6 @@ jobs:
         with:
           repo: pulumi/crd2pulumi
           tag: v1.0.10
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   change-aws-credentials:
     strategy:
       matrix:
@@ -35,8 +33,6 @@ jobs:
         with:
           repo: jaxxstorm/change-aws-credentials
           tag: v0.3.3
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: change-aws-credentials version
   tf2pulumi:
     strategy:
@@ -52,8 +48,6 @@ jobs:
         with:
           repo: pulumi/tf2pulumi
           tag: ${{ matrix.version }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: tf2pulumi version
   tfsec:
     strategy:
@@ -79,6 +73,4 @@ jobs:
           tag: ${{ matrix.version }}
           platform: ${{ matrix.platform }}
           arch: ${{ matrix.arch }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: tfsec --version
