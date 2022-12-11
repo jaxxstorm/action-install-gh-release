@@ -7,6 +7,20 @@ on:
       - "releases/*"
 
 jobs:
+  connecti:
+    strategy:
+      matrix:
+        runs-on: ["ubuntu-latest", "macos-latest"]
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@v1
+      - run: npm ci
+      - run: npm run build
+      - uses: ./
+        with:
+          repo: jaxxstorm/connecti
+          arch: amd64
+          cache: enable
   crd2pulumi:
     strategy:
       matrix:
