@@ -20,7 +20,7 @@ jobs:
         with:
           repo: jaxxstorm/connecti
           arch: amd64
-          cache: true
+          cache: enable
   crd2pulumi:
     strategy:
       matrix:
