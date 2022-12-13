@@ -1,5 +1,6 @@
 import * as os from "os";
 import * as path from "path";
+import * as fs from "fs";
 
 import * as cache from "@actions/cache";
 import * as core from "@actions/core";
@@ -104,6 +105,32 @@ async function run() {
         core.info(`==> System reported arch: ${os.arch()}`)
         core.info(`==> Using arch: ${osArch}`)
 
+        // Determine File Extensions (if any)
+        const extMatching = core.getInput("extension-matching") === "enable";
+        let extension = core.getInput("extension");
+        let extMatchRegexForm = "";
+        if (extMatching) {
+            if (extension === "") {
+                extMatchRegexForm = "\.(tar.gz|zip)";
+                core.info(`==> Using default file extension matching: ${extMatchRegexForm}`);
+            } else {
+                extMatchRegexForm = extension;
+                core.info(`==> Using custom file extension matching: ${extMatchRegexForm}`);
+            }
+        } else {
+            core.info("==> File extension matching disabled");
+        }
+
+        // Determine whether renaming is in use
+        let renameTo = core.getInput("rename-to");
+        if (renameTo !== "") {
+            core.info(`==> Will rename downloaded release to ${renameTo}`);
+        }
+        let chmodTo = core.getInput("chmod");
+        if (chmodTo !== "") {
+            core.info(`==> Will chmod downloaded release asset to ${chmodTo}`);
+        }
+
         let toolInfo: ToolInfo = {
             owner: owner,
             project: project,
@@ -139,7 +166,7 @@ async function run() {
         }
 
         let osMatchRegexForm = `(${osMatch.join('|')})`
-        let re = new RegExp(`${osMatchRegexForm}.*${osMatchRegexForm}.*\.(tar.gz|zip)`)
+        let re = new RegExp(`${osMatchRegexForm}.*${osMatchRegexForm}.*${extMatchRegexForm}`)
         let asset = getReleaseUrl.data.assets.find(obj => {
             core.info(`searching for ${obj.name} with ${re.source}`)
             let normalized_obj_name = obj.name.toLowerCase()
@@ -153,8 +180,6 @@ async function run() {
             )
         }
 
-        const extractFn = getExtractFn(asset.name);
-
         const url = asset.url
 
         core.info(`Downloading ${project} from ${url}`)
@@ -165,7 +190,57 @@ async function run() {
               accept: 'application/octet-stream'
             }
         );
-        await extractFn(binPath, dest);
+
+        const extractFn = getExtractFn(asset.name)
+        if (extractFn !== undefined) {
+            // Release is an archive file so extract it to the destination
+            const extractFlags = getExtractFlags(asset.name)
+            if (extractFlags !== undefined) {
+                core.info(`Attempting to extract archive with custom flags ${extractFlags}`)
+                await extractFn(binPath, dest, extractFlags);
+            } else {
+                await extractFn(binPath, dest);
+            }
+            core.info(`Automatically extracted release asset ${asset.name} to ${dest}`);
+
+            if (renameTo !== "") {
+                core.warning("rename-to parameter ignored when installing a release from an archive");
+            }
+            if (chmodTo !== "") {
+                core.warning("chmod parameter ignored when installing a release from an archive");
+            }
+        } else {
+            // As it wasn't an archive we've just downloaded it as a blob, this uses an auto-assigned name which will
+            // be a UUID which is likely meaningless to the caller.  If they have specified a rename-to and a chmod
+            // parameter then this is where we apply those.
+            // Regardless of any rename-to parameter we still need to move the download to the actual destination
+            // otherwise it won't end up on the path as expected
+            core.warning(
+                `Release asset ${asset.name} did not have a recognised file extension, unable to automatically extract it`)
+            try {
+                fs.mkdirSync(dest, {'recursive': true});
+
+                const outputPath = path.join(dest, renameTo !== "" ? renameTo : path.basename(binPath));
+                core.info(`Created output directory ${dest}`);
+                try {
+                    fs.renameSync(binPath, outputPath);
+                    core.info(`Moved release asset ${asset.name} to ${outputPath}`);
+
+                    if (chmodTo !== "") {
+                        try {
+                            fs.chmodSync(outputPath, chmodTo);
+                            core.info(`chmod'd ${outputPath} to ${chmodTo}`)
+                        } catch (chmodErr) {
+                            core.setFailed(`Failed to chmod ${outputPath} to ${chmodTo}: ${chmodErr}`);
+                        }
+                    }
+                } catch (renameErr) {
+                    core.setFailed(`Failed to move downloaded release asset ${asset.name} from ${binPath} to ${outputPath}: ${renameErr}`);
+                }
+            } catch (err) {
+                core.setFailed(`Failed to create required output directory ${dest}`);
+            }
+        }
 
         if (cacheEnabled && cacheKey !== undefined) {
             try {
@@ -183,7 +258,7 @@ async function run() {
         }
 
         core.addPath(dest);
-        core.info(`Successfully extracted ${project} to ${dest}`)
+        core.info(`Successfully installed ${project} to ${dest}`)
     } catch (error) {
         if (error instanceof Error) {
             core.setFailed(error.message);
@@ -194,7 +269,7 @@ async function run() {
 }
 
 function cachePrimaryKey(info: ToolInfo): string|undefined {
-    // Currently not caching "latest" verisons of the tool.
+    // Currently not caching "latest" versions of the tool.
     if (info.tag === "latest") {
         return undefined;
     }
@@ -217,12 +292,20 @@ function getCacheDirectory() {
 }
 
 function getExtractFn(assetName: any) {
-    if (assetName.endsWith('.tar.gz')) {
+    if (assetName.endsWith('.tar.gz') || assetName.endsWith('.tar.bz2')) {
         return tc.extractTar;
     } else if (assetName.endsWith('.zip')) {
         return tc.extractZip;
     } else {
-        throw new Error(`Unreachable error? File is neither .tar.gz nor .zip, got: ${assetName}`);
+        return undefined;
+    }
+}
+
+function getExtractFlags(assetName: any) {
+    if (assetName.endsWith('tar.bz2')) {
+        return "xj";
+    } else {
+        return undefined;
     }
 }
 
