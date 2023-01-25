@@ -12,7 +12,7 @@ This is especially useful when installing arbitrary Go binaries. It can lookup t
 # ...
 steps:
   - name: Install go-task
-    uses: jaxxstorm/action-install-gh-release@v1.5.0
+    uses: jaxxstorm/action-install-gh-release@v1.10.0
     with: # Grab the latest version
       repo: go-task/task
 ```
@@ -23,7 +23,7 @@ steps:
 # ...
 steps:
   - name: Install tf2pulumi
-    uses: jaxxstorm/action-install-gh-release@v1.5.0
+    uses: jaxxstorm/action-install-gh-release@v1.10.0
     with: # Grab a specific tag
       repo: pulumi/tf2pulumi
       tag: v0.7.0
@@ -34,7 +34,7 @@ steps:
 ```yaml
 steps:
   - name: Install tfsec
-    uses: jaxxstorm/action-install-gh-release@v1.5.0
+    uses: jaxxstorm/action-install-gh-release@v1.10.0
     with: # Grab a specific platform and/or architecture
       repo: aquasecurity/tfsec
       platform: linux
@@ -48,7 +48,7 @@ Use a `repo` scoped [Personal Access Token (PAT)](https://docs.github.com/en/git
 ```yaml
 steps:
   - name: Install private tool
-    uses: jaxxstorm/action-install-gh-release@v1.5.0
+    uses: jaxxstorm/action-install-gh-release@v1.10.0
     with: # Grab from a private repository
       token: ${{ secrets.MY_PAT }}
       repo: my-org/my-private-repo
@@ -62,7 +62,7 @@ This action can use [actions/cache](https://github.com/actions/cache) under the 
 # ...
 steps:
   - name: Install tf2pulumi
-    uses: jaxxstorm/action-install-gh-release@v1.5.0
+    uses: jaxxstorm/action-install-gh-release@v1.10.0
     with: # Grab a specific tag with caching
       repo: pulumi/tf2pulumi
       tag: v0.7.0
@@ -89,7 +89,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Github token scoped to job
     steps:
       - name: Install Mozilla grcov
-        uses: jaxxstorm/action-install-gh-release@v1.5.0
+        uses: jaxxstorm/action-install-gh-release@v1.10.0
         with: # Grab a specific file extension
           repo: mozilla/grcov
           tag: v0.8.12
@@ -112,7 +112,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Github token scoped to job
     steps:
       - name: Install Open Telemetry Collector Builder (ocb)
-        uses: jaxxstorm/action-install-gh-release@v1.5.0
+        uses: jaxxstorm/action-install-gh-release@v1.10.0
         with: # Grab a pure binary
           repo: open-telemetry/opentelemetry-collector
           tag: v0.62.1
@@ -122,6 +122,22 @@ jobs:
 ```
 
 Note the use of the `rename-to` and `chmod` parameters to rename the downloaded binary and make it executable.
+
+### Grab multiple binaries from a specific location
+
+If the archive of the release contains binaries in a specific location, you can
+specify it with the `binaries-location` parameter. Note that the path is
+relative to the root of the archive. The option `rename-to` has no effect in
+this case. The option `chmod` is applied to all binaries.
+
+```yaml
+  - name: Install the latest Wasmer version
+    uses: jaxxstorm/action-install-gh-release@v1.10.0
+      with:
+      repo: wasmerio/wasmer
+      binaries-location: bin
+      chmod: 0755
+```
 
 ## Finding a release
 
