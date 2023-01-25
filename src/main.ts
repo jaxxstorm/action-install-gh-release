@@ -5,7 +5,7 @@ import * as fs from "fs";
 import * as cache from "@actions/cache";
 import * as core from "@actions/core";
 import * as tc from "@actions/tool-cache";
-import { GitHub, getOctokitOptions} from "@actions/github/lib/utils";
+import { GitHub, getOctokitOptions } from "@actions/github/lib/utils";
 import { throttling } from "@octokit/plugin-throttling";
 
 const ThrottlingOctokit = GitHub.plugin(throttling);
@@ -27,7 +27,7 @@ async function run() {
             throttle: {
                 onRateLimit: (retryAfter, options) => {
                     core.warning(
-                      `RateLimit detected for request ${options.method} ${options.url}.`
+                        `RateLimit detected for request ${options.method} ${options.url}.`
                     );
                     core.info(`Retrying after ${retryAfter} seconds.`);
                     return true;
@@ -63,11 +63,11 @@ async function run() {
 
         const [owner, project] = repo.split("/")
 
-        let osMatch : string[] = []
+        let osMatch: string[] = []
 
         // Determine Platform
         let osPlatform = core.getInput("platform");
-        if (osPlatform === ""){
+        if (osPlatform === "") {
             switch (os.platform()) {
                 case "linux":
                     osPlatform = "linux";
@@ -138,8 +138,18 @@ async function run() {
             osArch: osArch,
             osPlatform: osPlatform
         };
+        
         let dest = toolPath(toolInfo);
-
+        // If the user has specified a custom location where the binaries are in the release
+        // asset, we need to use modify the default path, joining the custom folder to the
+        // default path.
+        let binariesLocation = core.getInput("binaries-location");
+        let finalBinLocation = dest;
+        if (binariesLocation !== "") {
+            core.info(`==> Given bin location: ${binariesLocation}`);
+            finalBinLocation = path.join(dest, binariesLocation);
+        }
+        core.info(`==> Binaries will be located at: ${finalBinLocation}`);
         // Look in the cache first.
         let cacheKey = cachePrimaryKey(toolInfo);
         if (cacheEnabled && cacheKey !== undefined) {
@@ -173,7 +183,7 @@ async function run() {
             return re.test(normalized_obj_name)
         })
 
-        if (!asset ) {
+        if (!asset) {
             const found = getReleaseUrl.data.assets.map(f => f.name)
             throw new Error(
                 `Could not find a release for ${tag}. Found: ${found}`
@@ -187,7 +197,7 @@ async function run() {
             undefined,
             `token ${token}`,
             {
-              accept: 'application/octet-stream'
+                accept: 'application/octet-stream'
             }
         );
 
@@ -203,11 +213,26 @@ async function run() {
             }
             core.info(`Automatically extracted release asset ${asset.name} to ${dest}`);
 
-            if (renameTo !== "") {
-                core.warning("rename-to parameter ignored when installing a release from an archive");
+            const bins = fs.readdirSync(finalBinLocation, { withFileTypes: true })
+                .filter(item => item.isFile())
+                .map(bin => bin.name);
+            if (bins.length === 0)
+                throw new Error(`No files found in ${finalBinLocation}`);
+            else if (bins.length > 1 && renameTo !== "") {
+                core.warning("rename-to parameter ignored when installing \
+                a release from an archive that contains multiple files.");
             }
+
             if (chmodTo !== "") {
-                core.warning("chmod parameter ignored when installing a release from an archive");
+                bins.forEach(bin => {
+                    const binPath = path.join(finalBinLocation, bin);
+                    try {
+                        fs.chmodSync(binPath, chmodTo);
+                        core.info(`chmod'd ${binPath} to ${chmodTo}`)
+                    } catch (chmodErr) {
+                        core.setFailed(`Failed to chmod ${binPath} to ${chmodTo}: ${chmodErr}`);
+                    }
+                });
             }
         } else {
             // As it wasn't an archive we've just downloaded it as a blob, this uses an auto-assigned name which will
@@ -218,7 +243,7 @@ async function run() {
             core.warning(
                 `Release asset ${asset.name} did not have a recognised file extension, unable to automatically extract it`)
             try {
-                fs.mkdirSync(dest, {'recursive': true});
+                fs.mkdirSync(dest, { 'recursive': true });
 
                 const outputPath = path.join(dest, renameTo !== "" ? renameTo : path.basename(binPath));
                 core.info(`Created output directory ${dest}`);
@@ -257,8 +282,10 @@ async function run() {
             }
         }
 
-        core.addPath(dest);
-        core.info(`Successfully installed ${project} to ${dest}`)
+        core.info(`Adding ${finalBinLocation} to the path`);
+        core.addPath(finalBinLocation);
+        core.info(`Successfully installed ${project}`);
+        core.info(`Binaries available at ${finalBinLocation}`);
     } catch (error) {
         if (error instanceof Error) {
             core.setFailed(error.message);
@@ -268,7 +295,7 @@ async function run() {
     }
 }
 
-function cachePrimaryKey(info: ToolInfo): string|undefined {
+function cachePrimaryKey(info: ToolInfo): string | undefined {
     // Currently not caching "latest" versions of the tool.
     if (info.tag === "latest") {
         return undefined;
@@ -279,8 +306,8 @@ function cachePrimaryKey(info: ToolInfo): string|undefined {
 
 function toolPath(info: ToolInfo): string {
     return path.join(getCacheDirectory(),
-                     info.owner, info.project, info.tag,
-                     `${info.osPlatform}-${info.osArch}`);
+        info.owner, info.project, info.tag,
+        `${info.osPlatform}-${info.osArch}`);
 }
 
 function getCacheDirectory() {
