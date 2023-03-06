@@ -50,12 +50,8 @@ async function run() {
             )
         }
 
-        const tag = core.getInput("tag");
-        if (!tag) {
-            throw new Error(
-                `Tag not specified`
-            )
-        }
+        let tag = core.getInput("tag");
+        tag = !tag ? "latest" : tag
 
         const cacheEnabled = (core.getInput("cache") === "enable")
             && tag !== "latest"
