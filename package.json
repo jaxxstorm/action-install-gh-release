@@ -1,6 +1,6 @@
 {
   "name": "action-install-gh-release",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "private": true,
   "description": "Install a GitHub release binary in a GitHub Actions build environment",
   "main": "lib/main.js",
