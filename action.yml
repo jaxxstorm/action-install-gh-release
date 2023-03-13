@@ -34,6 +34,9 @@ inputs:
   cache:
     description: "When set to 'enable', caches the downloads of known tags with actions/cache"
     required: false
+  binaries-location:
+    description: "Specify this parameter if the binaries are not located in the root of the release archive. The parameter should be a relative path to the release archive. For example, if the binaries are located in the 'bin' directory of the release archive, the parameter should be 'bin'."
+    required: false
 branding:
   icon: "archive"
   color: "green"

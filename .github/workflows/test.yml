@@ -143,4 +143,27 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: grcov --version
-
+  wasmer:
+    strategy:
+      matrix:
+        version: [ "latest" ]
+        runs-on: [ "ubuntu-latest", "macos-latest"]
+        arch: [ "amd64" ]
+        include:
+          - runs-on: "ubuntu-latest"
+            platform: linux
+          - runs-on: "macos-latest"
+            platform: darwin
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@v1
+      - run: npm ci
+      - run: npm run build
+      - uses: ./
+        with:
+          repo: wasmerio/wasmer
+          binaries-location: bin
+          chmod: 0755
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: wasmer --version
