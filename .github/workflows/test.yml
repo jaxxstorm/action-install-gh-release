@@ -166,3 +166,4 @@ jobs:
           chmod: 0755
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: wasmer --version
