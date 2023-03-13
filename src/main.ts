@@ -236,7 +236,7 @@ async function run() {
             // parameter then this is where we apply those.
             // Regardless of any rename-to parameter we still need to move the download to the actual destination
             // otherwise it won't end up on the path as expected
-            core.warning(
+            core.info(
                 `Release asset ${asset.name} did not have a recognised file extension, unable to automatically extract it`)
             try {
                 fs.mkdirSync(dest, { 'recursive': true });
