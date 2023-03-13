@@ -47,7 +47,7 @@ jobs:
       - uses: ./
         with:
           repo: jaxxstorm/change-aws-credentials
-          tag: v0.3.3
+          tag: v0.4.0
       - run: change-aws-credentials version
   tf2pulumi:
     strategy:
