@@ -152,7 +152,8 @@ async function run() {
             let ok = await cache.restoreCache([dest], cacheKey);
             if (ok !== undefined) {
                 core.info(`Found ${project} in the cache: ${dest}`)
-                core.addPath(dest);
+                core.info(`Adding ${finalBinLocation} to the path`);
+                core.addPath(finalBinLocation);
                 return;
             }
         }
