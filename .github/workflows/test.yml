@@ -92,7 +92,7 @@ jobs:
   opentelemetry-ocb:
     strategy:
       matrix:
-        version: [ "v0.62.1", "v0.62.0", "latest" ]
+        version: [ "v0.62.1", "v0.62.0" ]
         runs-on: [ "ubuntu-latest", "macos-latest"]
         arch: [ "amd64" ]
         include:
@@ -147,13 +147,11 @@ jobs:
     strategy:
       matrix:
         version: [ "latest" ]
-        runs-on: [ "ubuntu-latest", "macos-latest"]
+        runs-on: [ "ubuntu-latest" ]
         arch: [ "amd64" ]
         include:
           - runs-on: "ubuntu-latest"
             platform: linux
-          - runs-on: "macos-latest"
-            platform: darwin
     runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@v1
