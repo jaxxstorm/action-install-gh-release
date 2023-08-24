@@ -93,7 +93,7 @@ async function run() {
                     break;
                 default:
                     osMatch.push(os.arch())
-                    return;
+                    break;
             }
         } else {
             osMatch.push(osArch)
