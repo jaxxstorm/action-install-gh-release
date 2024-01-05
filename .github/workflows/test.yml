@@ -165,3 +165,28 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: wasmer --version
+  prometheus:
+    strategy:
+      matrix:
+        version: [ "latest" ]
+        runs-on: [ "ubuntu-latest" ]
+        arch: [ "amd64" ]
+        include:
+          - runs-on: "ubuntu-latest"
+            platform: linux
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@v1
+      - run: npm ci
+      - run: npm run build
+      - uses: ./
+        with:
+          repo: prometheus/prometheus
+          tag: 'v2.37.9'
+          platform: linux
+          arch: amd64
+          cache: enable
+          binaries-location: prometheus-2.37.9.linux-amd64
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: promtool --version
