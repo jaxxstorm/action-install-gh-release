@@ -190,3 +190,27 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: promtool --version
+  cargo_make:
+    strategy:
+      matrix:
+        version: [ "latest" ]
+        runs-on: [ "ubuntu-latest" ]
+        arch: [ "amd64" ]
+        include:
+          - runs-on: "ubuntu-latest"
+            platform: linux
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@v1
+      - run: npm ci
+      - run: npm run build
+      - uses: ./
+        with:
+          repo: sagiegurari/cargo-make
+          platform: unknown-linux-gnu
+          arch: x86_64
+          cache: enable
+          binaries-location: cargo-make-v0.36.12-x86_64-unknown-linux-gnu
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: cargo-make
