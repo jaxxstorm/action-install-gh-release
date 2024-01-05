@@ -17,7 +17,7 @@ steps:
       repo: go-task/task
 ```
 
-### Grab a Specific Tags
+### Grab Specific Tags
 
 ```yaml
 # ...
@@ -38,7 +38,7 @@ steps:
     with: # Grab a specific platform and/or architecture
       repo: aquasecurity/tfsec
       platform: linux
-      arch: x86-64
+      arch: amd64
 ```
 
 ### Grab from a private repository
@@ -75,10 +75,9 @@ Caching helps avoid
 ### Changing Release File Extensions
 
 As described below this action defaults to assuming that a release is either a `.tar.gz` or a `.zip` archive but this 
-may not always be true for all releases.  For example a project might release a pure binary, a different archive format,
-custom file extension etc.
+may not always be true for all releases.  For example, a project might release a pure binary, a different archive format, a custom file extension etc.
 
-This action can change its extension matching behaviour via the `extension-matching` and `extension` parameters.  For 
+This action can change its extension-matching behavior via the `extension-matching` and `extension` parameters.  For 
 example to match on a `.bz2` extension:
 
 ```yaml
@@ -97,12 +96,12 @@ jobs:
 ```
 
 Here the `extension` parameter is used to provide a regular expression for the file extension(s) you want to match.  If
-this is not specified then the action defaults to `\.(tag.gz|zip)`.  Since this a regular expression being embedded into
+this is not specified then the action defaults to `\.(tag.gz|zip)`.  Since this is a regular expression being embedded into
 YAML be aware that you may need to provide an extra level of character escaping, in the above example we have a `\\` 
-used in order to escape the backslash and get an actual `\.` (literal match of the period character) in the regular 
+used to escape the backslash and get an actual `\.` (literal match of the period character) in the regular 
 expression passed into the action.
 
-Alternatively if a project produces pure binary releases with no file extension then you can install as follows:
+Alternatively, if a project produces pure binary releases with no file extension then you can install them as follows:
 
 ```yaml
 # ...
@@ -141,7 +140,7 @@ this case. The option `chmod` is applied to all binaries.
 
 ## Finding a release
 
-By default, this action will lookup the Platform and Architecture of the runner and use those values to interpolate and match a release package. **The release package name is first converted to lowercase**. The match pattern is:
+By default, this action will look up the Platform and Architecture of the runner and use those values to interpolate and match a release package. **The release package name is first converted to lowercase**. The match pattern is:
 
 ```js
 `(osPlatform|osArchs).*(osPlatform|osArchs).*\.(tar\.gz|zip)`;
