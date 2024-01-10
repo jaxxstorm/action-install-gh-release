@@ -244,20 +244,38 @@ async function run() {
 
                 const outputPath = path.join(dest, renameTo !== "" ? renameTo : path.basename(binPath));
                 core.info(`Created output directory ${dest}`);
+
+                var moveFailed = false;
+
                 try {
                     fs.renameSync(binPath, outputPath);
-                    core.info(`Moved release asset ${asset.name} to ${outputPath}`);
-
-                    if (chmodTo !== "") {
-                        try {
-                            fs.chmodSync(outputPath, chmodTo);
-                            core.info(`chmod'd ${outputPath} to ${chmodTo}`)
-                        } catch (chmodErr) {
-                            core.setFailed(`Failed to chmod ${outputPath} to ${chmodTo}: ${chmodErr}`);
-                        }
-                    }
                 } catch (renameErr) {
-                    core.setFailed(`Failed to move downloaded release asset ${asset.name} from ${binPath} to ${outputPath}: ${renameErr}`);
+                    if (renameErr instanceof Error && 'code' in renameErr && renameErr.code === 'EXDEV')  {
+                        core.debug(`Falling back to copy and remove, due to: ${renameErr}`);
+                        try {
+                            fs.copyFileSync(binPath, outputPath);
+                            fs.rmSync(binPath);
+                        } catch (copyRemoveErr) {
+                            moveFailed = true;
+                            core.setFailed(`Failed to copy and remove downloaded release asset ${asset.name} from ${binPath} to ${outputPath}: ${copyRemoveErr}`);
+                        }
+                    } else {
+                        moveFailed = true;
+                        core.setFailed(`Failed to move downloaded release asset ${asset.name} from ${binPath} to ${outputPath}: ${renameErr}`);
+                    }
+                }
+
+                if (!moveFailed) {
+                    core.info(`Moved release asset ${asset.name} to ${outputPath}`);
+                }
+
+                if ((chmodTo !== "") && !moveFailed) {
+                    try {
+                        fs.chmodSync(outputPath, chmodTo);
+                        core.info(`chmod'd ${outputPath} to ${chmodTo}`)
+                    } catch (chmodErr) {
+                        core.setFailed(`Failed to chmod ${outputPath} to ${chmodTo}: ${chmodErr}`);
+                    }
                 }
             } catch (err) {
                 core.setFailed(`Failed to create required output directory ${dest}`);
