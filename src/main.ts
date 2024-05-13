@@ -134,7 +134,7 @@ async function run() {
             osArch: osArch,
             osPlatform: osPlatform
         };
-        
+
         let dest = toolPath(toolInfo);
         // If the user has specified a custom location where the binaries are in the release
         // asset, we need to use modify the default path, joining the custom folder to the
@@ -334,7 +334,7 @@ function getCacheDirectory() {
 }
 
 function getExtractFn(assetName: any) {
-    if (assetName.endsWith('.tar.gz') || assetName.endsWith('.tar.bz2')) {
+    if (assetName.endsWith('.tar.gz') || assetName.endsWith('.tar.bz2') || assetName.endsWith('.tgz')) {
         return tc.extractTar;
     } else if (assetName.endsWith('.zip')) {
         return tc.extractZip;
