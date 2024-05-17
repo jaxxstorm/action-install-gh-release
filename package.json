@@ -20,6 +20,7 @@
     "@actions/tool-cache": "^2.0.1",
     "@octokit/plugin-throttling": "^5.0.1",
     "cache": "github:actions/cache",
+    "eslint": "^9.2.0",
     "minimist": "^1.2.7",
     "mkdirp-promise": "^5.0.1",
     "node-fetch": "^3.3.0"
