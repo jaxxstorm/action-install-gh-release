@@ -107,7 +107,7 @@ async function run() {
         let extMatchRegexForm = "";
         if (extMatching) {
             if (extension === "") {
-                extMatchRegexForm = "\.(tar.gz|zip)";
+                extMatchRegexForm = "\.(tar.gz|zip|tgz)";
                 core.info(`==> Using default file extension matching: ${extMatchRegexForm}`);
             } else {
                 extMatchRegexForm = extension;
