@@ -205,5 +205,4 @@ jobs:
           repo: MystenLabs/sui
           platform: ubuntu
           cache: enable
-          extension: '.tgz'
       - run: sui --version
