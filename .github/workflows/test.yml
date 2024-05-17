@@ -49,21 +49,6 @@ jobs:
           repo: jaxxstorm/change-aws-credentials
           tag: v0.4.0
       - run: change-aws-credentials version
-  tf2pulumi:
-    strategy:
-      matrix:
-        version: ["v0.7.0", "v0.8.0", "latest"]
-        runs-on: ["ubuntu-latest", "macos-latest", "windows-latest"]
-    runs-on: ${{ matrix.runs-on }}
-    steps:
-      - uses: actions/checkout@v1
-      - run: npm ci
-      - run: npm run build
-      - uses: ./
-        with:
-          repo: pulumi/tf2pulumi
-          tag: ${{ matrix.version }}
-      - run: tf2pulumi version
   tfsec:
     strategy:
       matrix:
