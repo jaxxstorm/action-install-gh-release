@@ -190,3 +190,19 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: promtool --version
+  sui:
+    strategy:
+      matrix:
+        version: [ "latest" ]
+        runs-on: [ "ubuntu-latest" ]
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@v1
+      - run: npm ci
+      - run: npm run build
+      - uses: ./
+        with:
+          repo: MystenLabs/sui
+          platform: ubuntu
+          cache: enable
+      - run: sui --version
