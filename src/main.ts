@@ -91,6 +91,9 @@ async function run() {
                 case "x64":
                     osMatch.push("x86_64", "x64", "amd64")
                     break;
+                case "arm64":
+                    osMatch.push("aarch64", "arm64")
+                    break;
                 default:
                     osMatch.push(os.arch())
                     break;
