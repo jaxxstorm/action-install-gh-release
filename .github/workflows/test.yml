@@ -14,7 +14,7 @@ jobs:
         runs-on: ["ubuntu-latest", "macos-latest"]
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -28,7 +28,7 @@ jobs:
         runs-on: ["ubuntu-latest", "macos-latest"]
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -41,7 +41,7 @@ jobs:
         runs-on: ["ubuntu-latest", "macos-latest"]
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -64,7 +64,7 @@ jobs:
             platform: windows
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -87,7 +87,7 @@ jobs:
             platform: darwin
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -115,7 +115,7 @@ jobs:
             platform: darwin
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -139,7 +139,7 @@ jobs:
             platform: linux
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -161,7 +161,7 @@ jobs:
             platform: linux
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -182,7 +182,7 @@ jobs:
         runs-on: [ "ubuntu-latest" ]
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - run: npm ci
       - run: npm run build
       - uses: ./
