@@ -1,4 +1,4 @@
-name: "Install a binaries from GitHub releases"
+name: "Install GH releases"
 description: "Install binaries from GitHub releases"
 author: "Lee Briggs"
 inputs:
@@ -12,34 +12,9 @@ inputs:
     description: "When set to 'true', caches the releases of known tags with actions/cache"
     default: "false"
     required: false
-
-#  tag:
-#    description: "tag containing binary to install"
-#    default: latest
-#    required: true
-#  platform:
-#    description: "OS Platform to match in release package. Specify this parameter if the repository releases do not follow a normal convention otherwise it will be auto-detected."
-#    required: false
-#  arch:
-#    description: "OS Architecture to match in release package. Specify this parameter if the repository releases do not follow a normal convention otherwise it will be auto-detected."
-#    required: false
-#  extension:
-#    description: "Custom file extension to match in release package.  Specify this parameter if the repository releases do not provide a .tar.gz or .zip format release."
-#    required: false
-#  extension-matching:
-#    description: "Enable/disable file extension matching in release package.  Specify this parameter if the repository releases do not have a file extension e.g. they are pure binaries."
-#    required: false
-#    default: enable
-#  rename-to:
-#    description: "When installing a release that is not an archive, e.g. a pure binary, this controls how the downloaded release asset is renamed.  Specify this parameter if installing a non-archive release."
-#    required: false
-#  chmod:
-#    description: "When installing a release that is not an archive, e.g. a pure binary, this controls how the downloaded release asset is chmod'd.  Specify this parameter if installing a non-archive release and you need to change its permissions e.g. make it executable."
-#    required: false
-
 branding:
-  icon: "archive"
-  color: "green"
+  icon: "download"
+  color: "white"
 runs:
   using: node20
   main: dist/index.js

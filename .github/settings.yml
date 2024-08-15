@@ -3,6 +3,6 @@ _extends: .github
 
 repository:
   name: install-gh-releases
-  description: Install the Github Release binaries
+  description: Install executable binaries from Github Releases
   homepage: https://cloudposse.com/accelerate
   topics: "github-action"
