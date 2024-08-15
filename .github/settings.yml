@@ -2,7 +2,7 @@
 _extends: .github
 
 repository:
-  name: get-pr
-  description: Get the PR info associated with the commit
+  name: install-gh-releases
+  description: Install the Github Release binaries
   homepage: https://cloudposse.com/accelerate
   topics: "github-action"
