@@ -108,7 +108,7 @@ Long format supports the following parameters:
       name: Install depenedencies
       runs-on: ubuntu-latest
       steps:
-        - uses: cloudposse-github-actions/install-gh-releases@v1
+        - uses: cloudposse-github-actions/install-gh-releases@main
           with:
             cache: true
             config: |-
