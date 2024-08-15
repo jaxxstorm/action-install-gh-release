@@ -1,0 +1,36 @@
+name: build-and-test
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+
+jobs:
+  check-dist:
+    name: "check-dist matches source"
+    uses: cloudposse/github-actions-workflows/.github/workflows/ci-typescript-app-check-dist.yml@main
+    with:
+      node-version: 20.x
+
+  unit-test:
+    name: "unit tests"
+    runs-on: ubuntu-latest
+    needs: check-dist
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: yarn
+      - name: install dependencies
+        run: yarn install --frozen-lockfile --prefer-offline
+      - uses: cloudposse/github-action-setup-atmos@v2
+        with:
+          install-wrapper: false
+      - name: run unit tests
+        run: yarn test

@@ -1,0 +1,8 @@
+# These settings are synced to GitHub by https://probot.github.io/apps/settings/
+_extends: .github
+
+repository:
+  name: get-pr
+  description: Get the PR info associated with the commit
+  homepage: https://cloudposse.com/accelerate
+  topics: "github-action"

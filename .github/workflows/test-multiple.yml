@@ -1,0 +1,50 @@
+name: Test config with multiple tools
+on:
+  #  # Uncomment when test added first time to register workflow and comment it back after workflow would be registered
+  #  #
+  #  # Added pull_request to register workflow from the PR.
+  #  # Read more https://stackoverflow.com/questions/63362126/github-actions-how-to-run-a-workflow-created-on-a-non-master-branch-from-the-wo
+  # pull_request: {}
+  workflow_dispatch: {}
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup
+        run: echo "Do setup"
+
+  test:
+    needs: [setup]
+    strategy:
+      matrix:
+        runs-on: ["ubuntu-latest", "macos-latest"]
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: yarn install --frozen-lockfile
+      - run: yarn build
+      - uses: ./
+        with:
+          config: |
+            jaxxstorm/change-aws-credentials: v0.4.0
+            pulumi/crd2pulumi: v1.0.10            
+            jaxxstorm/connecti:
+              arch: amd64
+          cache: true
+      - run: change-aws-credentials version
+      - run: crd2pulumi version
+      - run: connecti version
+
+  assert:
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - uses: nick-fields/assert-action@v1
+        with:
+          expected: 'success'
+          actual: ${{ needs.test.result }}

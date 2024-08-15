@@ -1,0 +1,57 @@
+name: Test tfsec
+on:
+  #  # Uncomment when test added first time to register workflow and comment it back after workflow would be registered
+  #  #
+  #  # Added pull_request to register workflow from the PR.
+  #  # Read more https://stackoverflow.com/questions/63362126/github-actions-how-to-run-a-workflow-created-on-a-non-master-branch-from-the-wo
+  # pull_request: {}
+  workflow_dispatch: {}
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup
+        run: echo "Do setup"
+
+  test:
+    needs: [setup]
+    strategy:
+      matrix:
+        version: ["v1.18.0", "v1.19.0", "latest"]
+        runs-on: ["ubuntu-latest", "macos-latest", "windows-latest"]
+        arch: ["amd64"]
+        include:
+          - runs-on: "ubuntu-latest"
+            platform: linux
+          - runs-on: "macos-latest"
+            platform: darwin
+          - runs-on: "windows-latest"
+            platform: windows
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: yarn install --frozen-lockfile
+      - run: yarn build
+      - uses: ./
+        with:
+          config: |
+            aquasecurity/tfsec:        
+              tag: ${{ matrix.version }}
+              platform: ${{ matrix.platform }}
+              arch: ${{ matrix.arch }}
+              extension-matching: true
+      - run: tfsec --version
+
+  assert:
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - uses: nick-fields/assert-action@v1
+        with:
+          expected: 'success'
+          actual: ${{ needs.test.result }}

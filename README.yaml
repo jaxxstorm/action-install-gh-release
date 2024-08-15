@@ -1,0 +1,129 @@
+# Name of this project
+name: Install GH Releases
+
+# Tags of this project
+tags:
+  - github-action
+
+# License of this project
+license: "Apache-2.0"
+
+# Canonical GitHub repo
+github_repo: cloudposse-github-actions/install-gh-releases
+
+# Badges to display
+badges:
+  - name: "Latest Release"
+    image: "https://img.shields.io/github/release/cloudposse-github-actions/install-gh-releases.svg"
+    url: "https://github.com/cloudposse-github-actions/install-gh-releases/releases/latest"
+  - name: "Slack Community"
+    image: "https://slack.cloudposse.com/badge.svg"
+    url: "https://slack.cloudposse.com"
+
+related: []
+
+# Short description of this project
+description: |
+  Install the Github Release binaries
+
+author: hello@cloudposse.com
+
+introduction: |-
+  Fork of [jaxxstorm/action-install-gh-release](https://github.com/jaxxstorm/action-install-gh-release) 
+  modified to install multiple releases at once and adopted to Cloud Posse's GitHub Actions standards.
+  
+  Define set of GH releases to install as `config` input following the format:
+  
+  * Short format: 
+    ```yaml
+      acme/repo-1: latest
+    ```
+
+    or 
+
+    ```yaml
+      acme/repo-1:
+    ``` 
+   
+    which are equivalent
+  * Long format:  
+
+    ```yaml
+    acme/repo-4:
+      tag: v0.1.0
+      platform: linux
+      arch: amd64
+      ## Seek for `(tar.gz|zip|tgz)` archived asset (default "extension")
+      extension-matching: true
+    ```
+  
+  Long format supports the following parameters:
+  
+  | Name | Description | Default |
+  |------|-------------|---------|
+  | tag | Tag containing binary to install | `latest` |
+  | platform | OS Platform to match in release package | `{platform of current runner}` |
+  | arch | OS Architecture to match in release package | `{arch of current runner}` |
+  | extension-matching | Set `true` to match extension in release package | `false` |
+  | extension | Extension match pattern | `tar.gz\|zip\|tgz` |
+  | rename-to | When installing a release that is not an archive, e.g. a pure binary, this controls how the downloaded release asset is renamed. | `null` |
+  | chmod | When installing a release that is not an archive, e.g. a pure binary, this controls how the downloaded release asset is chmod'd. | `null` |
+  
+
+references: []
+
+# How to use this project
+usage: |-
+  ```yaml
+    on:
+      push:
+        branches:
+          - main
+
+    jobs:
+      install:
+        name: Install depenedencies
+        runs-on: ubuntu-latest
+        steps:
+          - uses: cloudposse-github-actions/install-gh-releases@v1
+            with:
+              cache: true
+              config: |-
+                jaxxstorm/change-aws-credentials: v0.4.0
+                pulumi/crd2pulumi: latest
+                jaxxstorm/connecti:
+                mozilla/grcov:
+                  tag: v0.8.7
+                  platform: linux
+                  arch: amd64
+                  extension: "\\.bz2"
+                  extension-matching: true
+                open-telemetry/opentelemetry-collector:
+                  tag: v0.62.1
+                  platform: linux
+                  arch: amd64
+                  extension-matching: false
+                  rename-to: ocb
+                  chmod: 755
+                prometheus/prometheus:
+                  tag: "v2.37.9"
+                  platform: linux
+                  arch: amd64
+                  extension-matching: false
+                  binaries-location: "prometheus-2.37.9.linux-amd64"
+                aquasecurity/tfsec:
+                  tag: v1.19.0
+                  platform: linux
+                  arch: amd64
+                  extension-matching: true
+  ```
+
+include:
+  - "docs/github-action.md"
+
+# Contributors to this project
+contributors:
+  - name: "Timon Christiansen"
+    github: "8BitJonny"
+  - name: "Igor Rodionov"
+    github: "goruha"
