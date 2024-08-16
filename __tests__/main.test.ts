@@ -60,6 +60,11 @@ aquasecurity/tfsec:
   platform: linux
   arch: amd64
   extension-matching: true
+mozilla/grcov:
+  skip: true
+  tag: v0.8.7
+  platform: linux
+  arch: amd64  
 jaxxstorm/connecti: 
 jaxxstorm/change-aws-credentials: v0.4.0
 wasmerio/wasmer: {}

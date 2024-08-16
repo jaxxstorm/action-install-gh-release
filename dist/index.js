@@ -84328,12 +84328,18 @@ function run() {
                         rename_to: config["rename-to"] === undefined ? "" : config["rename-to"],
                         chmod: config.chmod === undefined ? "" : config.chmod,
                         binaries_location: config["binaries-location"] === undefined ? "" : config["binaries-location"],
+                        skip: config.skip === "" || config.skip === undefined ? false : config.skip,
                     });
                 }
             }
             const octokit = (0, github_1.getOctokit)(token);
             for (let [repo, config] of configs) {
-                yield downloadRelease(octokit, token, config, cacheEnabled);
+                if (config.skip) {
+                    core.info(`Skipping ${repo}`);
+                }
+                else {
+                    yield downloadRelease(octokit, token, config, cacheEnabled);
+                }
             }
         }
         catch (error) {
