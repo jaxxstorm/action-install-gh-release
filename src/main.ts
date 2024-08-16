@@ -28,6 +28,7 @@ interface Config {
     rename_to: string
     chmod: string
     binaries_location: string
+    skip: boolean
 }
 
 
@@ -99,13 +100,18 @@ export async function run() {
                     rename_to: config["rename-to"] === undefined ? "" : config["rename-to"],
                     chmod: config.chmod === undefined ? "" : config.chmod,
                     binaries_location: config["binaries-location"] === undefined ? "" : config["binaries-location"],
+                    skip: config.skip === "" || config.skip === undefined ? false : config.skip,
                 } as Config)
             }
         }
 
         const octokit = getOctokit(token)
         for (let [repo, config] of configs) {
-            await  downloadRelease(octokit, token, config, cacheEnabled)
+            if (config.skip) {
+                core.info(`Skipping ${repo}`)
+            } else {
+                await  downloadRelease(octokit, token, config, cacheEnabled)
+            }
         }
     } catch (error) {
         if (error instanceof Error) {

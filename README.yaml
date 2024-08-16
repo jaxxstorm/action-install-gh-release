@@ -61,6 +61,7 @@ introduction: |-
   
   | Name | Description | Default |
   |------|-------------|---------|
+  | skip | Set `true` to skip this release | `false` |
   | tag | Tag containing binary to install | `latest` |
   | platform | OS Platform to match in release package | `{platform of current runner}` |
   | arch | OS Architecture to match in release package | `{arch of current runner}` |
