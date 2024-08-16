@@ -41,7 +41,7 @@ export async function run() {
 
         const ajv = new Ajv2020()
 
-        const schemaJsonFile = 'config.schema.json'
+        const schemaJsonFile = path.join(process.env['GITHUB_ACTION_PATH'] || "", 'config.schema.json')
         const configJson = yaml.load(config);
 
         // load schema json file
