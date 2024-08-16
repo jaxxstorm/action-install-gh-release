@@ -75,6 +75,7 @@ Long format supports the following parameters:
 
 | Name | Description | Default |
 |------|-------------|---------|
+| skip | Set `true` to skip this release | `false` |
 | tag | Tag containing binary to install | `latest` |
 | platform | OS Platform to match in release package | `{platform of current runner}` |
 | arch | OS Architecture to match in release package | `{arch of current runner}` |
@@ -135,6 +136,7 @@ Long format supports the following parameters:
                 extension-matching: false
                 binaries-location: "prometheus-2.37.9.linux-amd64"
               aquasecurity/tfsec:
+                skip: true
                 tag: v1.19.0
                 platform: linux
                 arch: amd64
