@@ -160,21 +160,38 @@ async function run() {
             }
         }
 
-        let getRelease = async () => {
+        const getRelease = async () => {
             if (tag === "latest") {
-                if (!prerelease) {
-                    let release = await octokit.rest.repos.getLatestRelease({
+                if (prerelease) {
+                    let page = 1
+                    const per_page = 30
+                    while (true) {
+                        const { data: releases } = await octokit.rest.repos.listReleases({
+                            owner: owner,
+                            repo: project,
+                            per_page,
+                            page
+                        })
+                        const release = releases.find(release => release.prerelease)
+                        if (!!release) {
+                            return release
+                        }
+
+                        if (releases.length < per_page) {
+                            return undefined;
+                        }
+
+                        ++page
+                    }
+                } else {
+                    const release = await octokit.rest.repos.getLatestRelease({
                         owner: owner,
                         repo: project,
                     })
                     return release.data
-                } else {
-                    let releases = (await octokit.rest.repos.listReleases()).data;
-                    let release = releases.find(release => release.prerelease)
-                    return release
                 }
             } else {
-                let release = await octokit.rest.repos.getReleaseByTag({
+                const release = await octokit.rest.repos.getReleaseByTag({
                     owner: owner,
                     repo: project,
                     tag: tag,
