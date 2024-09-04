@@ -53,6 +53,8 @@ async function run() {
         let tag = core.getInput("tag");
         tag = !tag ? "latest" : tag
 
+        let prerelease = !!core.getInput("prerelease")
+
         const cacheEnabled = (core.getInput("cache") === "enable")
             && tag !== "latest"
             && tag !== "";
@@ -158,32 +160,48 @@ async function run() {
             }
         }
 
-        let getReleaseUrl;
-        if (tag === "latest") {
-            getReleaseUrl = await octokit.rest.repos.getLatestRelease({
-                owner: owner,
-                repo: project,
-            })
-        } else {
-            getReleaseUrl = await octokit.rest.repos.getReleaseByTag({
-                owner: owner,
-                repo: project,
-                tag: tag,
-            })
+        let getRelease = async () => {
+            if (tag === "latest") {
+                if (!prerelease) {
+                    let release = await octokit.rest.repos.getLatestRelease({
+                        owner: owner,
+                        repo: project,
+                    })
+                    return release.data
+                } else {
+                    let releases = (await octokit.rest.repos.listReleases()).data;
+                    let release = releases.find(release => release.prerelease)
+                    return release
+                }
+            } else {
+                let release = await octokit.rest.repos.getReleaseByTag({
+                    owner: owner,
+                    repo: project,
+                    tag: tag,
+                })
+                return release.data
+            }
+        }
+
+        let release = await getRelease()
+        if (!release) {
+            throw new Error(
+                `Could not find release for tag ${tag}${prerelease ? ' with prerelease' : ''}.`
+            )
         }
 
         let osMatchRegexForm = `(${osMatch.join('|')})`
         let re = new RegExp(`${osMatchRegexForm}.*${osMatchRegexForm}.*${extMatchRegexForm}`)
-        let asset = getReleaseUrl.data.assets.find(obj => {
+        let asset = release.assets.find(obj => {
             core.info(`searching for ${obj.name} with ${re.source}`)
             let normalized_obj_name = obj.name.toLowerCase()
             return re.test(normalized_obj_name)
         })
 
         if (!asset) {
-            const found = getReleaseUrl.data.assets.map(f => f.name)
+            const found = release.assets.map(f => f.name)
             throw new Error(
-                `Could not find a release for ${tag}. Found: ${found}`
+                `Could not find asset for ${tag}. Found: ${found}`
             )
         }
 

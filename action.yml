@@ -12,6 +12,10 @@ inputs:
     description: "tag containing binary to install"
     default: latest
     required: true
+  prerelease:
+    description: "considerer prerelease for latest tag"
+    default: "false"
+    required: false
   platform:
     description: "OS Platform to match in release package. Specify this parameter if the repository releases do not follow a normal convention otherwise it will be auto-detected."
     required: false
