@@ -53,7 +53,7 @@ async function run() {
         let tag = core.getInput("tag");
         tag = !tag ? "latest" : tag
 
-        let prerelease = !!core.getInput("prerelease")
+        let prerelease = core.getInput("prerelease") === "true"
 
         const cacheEnabled = (core.getInput("cache") === "enable")
             && tag !== "latest"
