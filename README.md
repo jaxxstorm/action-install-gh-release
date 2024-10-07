@@ -74,10 +74,10 @@ Caching helps avoid
 
 ### Changing Release File Extensions
 
-As described below this action defaults to assuming that a release is either a `.tar.gz` or a `.zip` archive but this 
+As described below this action defaults to assuming that a release is either a `.tar.gz` or a `.zip` archive but this
 may not always be true for all releases.  For example, a project might release a pure binary, a different archive format, a custom file extension etc.
 
-This action can change its extension-matching behavior via the `extension-matching` and `extension` parameters.  For 
+This action can change its extension-matching behavior via the `extension-matching` and `extension` parameters.  For
 example to match on a `.bz2` extension:
 
 ```yaml
@@ -97,8 +97,8 @@ jobs:
 
 Here the `extension` parameter is used to provide a regular expression for the file extension(s) you want to match.  If
 this is not specified then the action defaults to `\.(tag.gz|zip)`.  Since this is a regular expression being embedded into
-YAML be aware that you may need to provide an extra level of character escaping, in the above example we have a `\\` 
-used to escape the backslash and get an actual `\.` (literal match of the period character) in the regular 
+YAML be aware that you may need to provide an extra level of character escaping, in the above example we have a `\\`
+used to escape the backslash and get an actual `\.` (literal match of the period character) in the regular
 expression passed into the action.
 
 Alternatively, if a project produces pure binary releases with no file extension then you can install them as follows:
@@ -138,15 +138,37 @@ this case. The option `chmod` is applied to all binaries.
       chmod: 0755
 ```
 
-## Finding a release
+### Grab a single asset whose name differs from the repository
 
-By default, this action will look up the Platform and Architecture of the runner and use those values to interpolate and match a release package. **The release package name is first converted to lowercase**. The match pattern is:
+If the repository's release contains multiplie assets (e.g. for many projects),
+you can specify the name of the relevant asset with the `asset-name` parameter.
+Binary-related options (i.e. `rename-to`, `chmod`, and `extension-matching`)
+can be specified to control whether to treat the asset as binary and/or modify it.
 
-```js
-`(osPlatform|osArchs).*(osPlatform|osArchs).*\.(tar\.gz|zip)`;
+```yaml
+  - name: Install the latest wrpc version
+    uses: jaxxstorm/action-install-gh-release@v1.10.0
+    with:
+      repo: bytecodealliance/wrpc
+      asset-name: wit-bindgen-wrpc
+      rename-to: wit-bindgen-wrpc
+      chmod: 0755
+      extension-matching: disable
 ```
 
-Natively, the action will only match the following platforms: `linux`, `darwin`, `windows`.
+## Finding a release
+
+By default, this action will look up the Platform and Architecture of the runner and use those values to interpolate and match a release package. **The release package name is first converted to lowercase**.
+
+Multiple match patterns are used to find a viable asset:
+
+- Machine Architecture (e.g. `x86_64`, `arm64`, `amd64`)
+- (optional) Vendor (e.g. `musl`, `glibc`, `gnu`)
+- OS (e.g. `linux`, `darwin`)
+- Glibc implementation (e.g. `musl`, `glibc`, `gnu`)
+- (optional, via `extension-matching`) Extension (e.g. `tar.gz`, `zip`)
+
+Natively, the action will only match the following platforms (operating systems): `linux`, `darwin`, `windows`.
 
 Some examples of matches:
 
