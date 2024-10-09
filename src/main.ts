@@ -12,7 +12,8 @@ const ThrottlingOctokit = GitHub.plugin(throttling);
 
 interface ToolInfo {
     owner: string;
-    project: string;
+    assetName: string;
+    repoName: string;
     tag: string;
     osPlatform: string;
     osArch: string;
@@ -59,7 +60,10 @@ async function run() {
             && tag !== "latest"
             && tag !== "";
 
-        const [owner, project] = repo.split("/")
+        const [owner, repoName] = repo.split("/")
+
+        // If a project name was manually configured, use it
+        const assetName = core.getInput("asset-name");
 
         let osMatch: string[] = []
 
@@ -85,23 +89,25 @@ async function run() {
         core.info(`==> System reported platform: ${os.platform()}`)
         core.info(`==> Using platform: ${osPlatform}`)
 
+        const osArchMatch: string[] = [];
+
         // Determine Architecture
         let osArch = core.getInput("arch");
         if (osArch === "") {
             osArch = os.arch()
             switch (os.arch()) {
                 case "x64":
-                    osMatch.push("x86_64", "x64", "amd64")
+                    osArchMatch.push("x86_64", "x64", "amd64")
                     break;
                 case "arm64":
-                    osMatch.push("aarch64", "arm64")
+                    osArchMatch.push("aarch64", "arm64")
                     break;
                 default:
-                    osMatch.push(os.arch())
+                    osArchMatch.push(os.arch())
                     break;
             }
         } else {
-            osMatch.push(osArch)
+            osArchMatch.push(osArch)
         }
         core.info(`==> System reported arch: ${os.arch()}`)
         core.info(`==> Using arch: ${osArch}`)
@@ -133,8 +139,9 @@ async function run() {
         }
 
         let toolInfo: ToolInfo = {
-            owner: owner,
-            project: project,
+            owner,
+            repoName,
+            assetName,
             tag: tag,
             osArch: osArch,
             osPlatform: osPlatform
@@ -156,7 +163,7 @@ async function run() {
         if (cacheEnabled && cacheKey !== undefined) {
             let ok = await cache.restoreCache([dest], cacheKey);
             if (ok !== undefined) {
-                core.info(`Found ${project} in the cache: ${dest}`)
+                core.info(`Found ${assetName} in the cache: ${dest}`)
                 core.info(`Adding ${finalBinLocation} to the path`);
                 core.addPath(finalBinLocation);
                 return;
@@ -171,7 +178,7 @@ async function run() {
                     while (true) {
                         const { data: releases } = await octokit.rest.repos.listReleases({
                             owner: owner,
-                            repo: project,
+                            repo: repoName,
                             per_page,
                             page
                         })
@@ -189,14 +196,14 @@ async function run() {
                 } else {
                     const release = await octokit.rest.repos.getLatestRelease({
                         owner: owner,
-                        repo: project,
+                        repo: repoName,
                     })
                     return release.data
                 }
             } else {
                 const release = await octokit.rest.repos.getReleaseByTag({
                     owner: owner,
-                    repo: project,
+                    repo: repoName,
                     tag: tag,
                 })
                 return release.data
@@ -210,12 +217,40 @@ async function run() {
             )
         }
 
+        // Build regular expressions for all the target triple components
+        //
+        // See: https://wiki.osdev.org/Target_Triplet
+        let osArchMatchRegexForm = `(${osArchMatch.join('|')})`
+        let osArchRegex = new RegExp(`${osArchMatchRegexForm}`);
+
+        let vendorRegex = new RegExp("(apple|linux|pc|unknown)?") // vendor may not be specified
+
         let osMatchRegexForm = `(${osMatch.join('|')})`
-        let re = new RegExp(`${osMatchRegexForm}.*${osMatchRegexForm}.*${extMatchRegexForm}`)
+        let osRegex = new RegExp(`${osMatchRegexForm}`);
+
+        let libcRegex = new RegExp("(gnu|glibc|musl)?"); // libc calling convention may not be specified
+
+        let extensionRegex = new RegExp(`${extMatchRegexForm}$`)
+
+        // Attempt to find the asset, with matches for arch, vendor, os, libc and extension as appropriate
         let asset = release.assets.find(obj => {
-            core.info(`searching for ${obj.name} with ${re.source}`)
-            let normalized_obj_name = obj.name.toLowerCase()
-            return re.test(normalized_obj_name)
+            let normalized = obj.name.toLowerCase()
+            core.info(`checking for arch/vendor/os/glibc triple matches for (normalized) asset [${normalized}]`)
+
+            const nameIncluded = assetName ? normalized.includes(assetName) : true;
+            if (!nameIncluded) { core.debug(`name [${assetName}] wasn't included in [${normalized}]`); }
+            const osArchMatches = osArchRegex.test(normalized);
+            if (!osArchMatches) { core.debug("osArch didn't match"); }
+            const osMatches = osRegex.test(normalized);
+            if (!osMatches) { core.debug("os didn't match"); }
+            const vendorMatches = vendorRegex.test(normalized);
+            if (!vendorMatches) { core.debug("vendor didn't match"); }
+            const libcMatches = libcRegex.test(normalized);
+            if (!libcMatches) { core.debug("libc calling didn't match"); }
+            const extensionMatches = extensionRegex.test(normalized);
+            if (!extensionMatches) { core.debug("extenison didn't match"); }
+
+            return nameIncluded && osArchMatches && osMatches && vendorMatches && libcMatches && extensionMatches
         })
 
         if (!asset) {
@@ -227,7 +262,7 @@ async function run() {
 
         const url = asset.url
 
-        core.info(`Downloading ${project} from ${url}`)
+        core.info(`Downloading ${assetName} from ${url}`)
         const binPath = await tc.downloadTool(url,
             undefined,
             `token ${token}`,
@@ -337,7 +372,7 @@ async function run() {
 
         core.info(`Adding ${finalBinLocation} to the path`);
         core.addPath(finalBinLocation);
-        core.info(`Successfully installed ${project}`);
+        core.info(`Successfully installed ${assetName}`);
         core.info(`Binaries available at ${finalBinLocation}`);
     } catch (error) {
         if (error instanceof Error) {
@@ -354,12 +389,12 @@ function cachePrimaryKey(info: ToolInfo): string | undefined {
         return undefined;
     }
     return "action-install-gh-release/" +
-        `${info.owner}/${info.project}/${info.tag}/${info.osPlatform}-${info.osArch}`;
+        `${info.owner}/${info.assetName}/${info.tag}/${info.osPlatform}-${info.osArch}`;
 }
 
 function toolPath(info: ToolInfo): string {
     return path.join(getCacheDirectory(),
-        info.owner, info.project, info.tag,
+        info.owner, info.assetName, info.tag,
         `${info.osPlatform}-${info.osArch}`);
 }
 
