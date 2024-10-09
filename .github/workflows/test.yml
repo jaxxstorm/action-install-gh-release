@@ -191,3 +191,17 @@ jobs:
           platform: ubuntu
           cache: enable
       - run: sui --version
+  terrabuild:
+    strategy:
+      matrix:
+        runs-on: ["ubuntu-latest"]
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@v1
+      - run: npm ci
+      - run: npm run build
+      - uses: ./
+        with:
+          repo: magnusopera/terrabuild
+          prerelease: true
+      - run: terrabuild version
