@@ -17,6 +17,18 @@ steps:
       repo: go-task/task
 ```
 
+### Grab the Latest PreRelease Version
+
+```yaml
+# ...
+steps:
+  - name: Install go-task
+    uses: jaxxstorm/action-install-gh-release@v1.10.0
+    with: # Grab the latest version
+      repo: go-task/task
+      prerelease: true
+```
+
 ### Grab Specific Tags
 
 ```yaml

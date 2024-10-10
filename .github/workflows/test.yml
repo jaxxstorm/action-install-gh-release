@@ -219,3 +219,18 @@ jobs:
           chmod: 0755
           cache: enable
       - run: wit-bindgen-wrpc --version
+
+  terrabuild:
+    strategy:
+      matrix:
+        runs-on: ["ubuntu-latest"]
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@v1
+      - run: npm ci
+      - run: npm run build
+      - uses: ./
+        with:
+          repo: magnusopera/terrabuild
+          prerelease: true
+      - run: terrabuild version
