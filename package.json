@@ -14,12 +14,12 @@
   "author": "Lee Briggs",
   "license": "Apache-2.0",
   "dependencies": {
+    "@actions/cache": "^3.2.4",
     "@actions/core": "^1.10.0",
     "@actions/exec": "^1.1.1",
     "@actions/github": "^5.1.1",
     "@actions/tool-cache": "^2.0.1",
     "@octokit/plugin-throttling": "^5.0.1",
-    "cache": "github:actions/cache",
     "eslint": "^9.2.0",
     "minimist": "^1.2.7",
     "mkdirp-promise": "^5.0.1",
