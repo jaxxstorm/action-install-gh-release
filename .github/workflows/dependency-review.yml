@@ -21,9 +21,9 @@ jobs:
     runs-on: ${{ vars.ACTIVE_RUNNER_LABEL }}
     steps:
       - name: 'Checkout repository'
-        uses: actions/checkout@master
+        uses: actions/checkout@v4
       - name: 'Dependency Review'
-        uses: actions/dependency-review-action@master
+        uses: actions/dependency-review-action@v4
         with:
           comment-summary-in-pr: on-failure
           license-check: false
