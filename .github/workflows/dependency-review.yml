@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   dependency-review:
-    runs-on: ${{ vars.ACTIVE_RUNNER_LABEL }}
+    runs-on: ubuntu-latest
     steps:
       - name: 'Checkout repository'
         uses: actions/checkout@v4
