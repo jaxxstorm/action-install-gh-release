@@ -1,0 +1,14 @@
+{
+  "plugins": [
+    "git-tag",
+    "conventional-commits",
+    "first-time-contributor"
+  ],
+  "author": {
+        "name": "robotparty",
+    "email": "neveryyoumind@nowhere.com"
+  },
+  "shipit": {
+    "noChangelog": true
+  }
+}
