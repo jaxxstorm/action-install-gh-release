@@ -1,0 +1,30 @@
+name: Auto
+
+on:
+  push:
+    branches: [master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+# NOTE: PAT required since actions run by github actions bot do not trigger other workflows
+# see https://docs.github.com/en/actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow
+jobs:
+  shipit:
+    runs-on: ${{ vars.ACTIVE_RUNNER_LABEL }}
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@master}
+
+      - name: Install Auto
+        run: |
+          curl -sLo - https://github.com/intuit/auto/releases/download/v${{ vars.AUTO_VERSION }}/auto-linux.gz | gunzip > /usr/local/bin/auto
+          chmod a+x /usr/local/bin/auto
+
+      - name: Create Release
+        run: |
+          git fetch --unshallow --tags
+          auto shipit
