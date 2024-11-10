@@ -54,6 +54,8 @@ async function run() {
         let tag = core.getInput("tag");
         tag = !tag ? "latest" : tag
 
+        let prerelease = core.getInput("prerelease") === "true"
+
         const cacheEnabled = (core.getInput("cache") === "enable")
             && tag !== "latest"
             && tag !== "";
@@ -168,18 +170,51 @@ async function run() {
             }
         }
 
-        let getReleaseUrl;
-        if (tag === "latest") {
-            getReleaseUrl = await octokit.rest.repos.getLatestRelease({
-                owner: owner,
-                repo: repoName,
-            })
-        } else {
-            getReleaseUrl = await octokit.rest.repos.getReleaseByTag({
-                owner: owner,
-                repo: repoName,
-                tag: tag,
-            })
+        const getRelease = async () => {
+            if (tag === "latest") {
+                if (prerelease) {
+                    let page = 1
+                    const per_page = 30
+                    while (true) {
+                        const { data: releases } = await octokit.rest.repos.listReleases({
+                            owner: owner,
+                            repo: repoName,
+                            per_page,
+                            page
+                        })
+                        const release = releases.find(release => release.prerelease)
+                        if (!!release) {
+                            return release
+                        }
+
+                        if (releases.length < per_page) {
+                            return undefined;
+                        }
+
+                        ++page
+                    }
+                } else {
+                    const release = await octokit.rest.repos.getLatestRelease({
+                        owner: owner,
+                        repo: repoName,
+                    })
+                    return release.data
+                }
+            } else {
+                const release = await octokit.rest.repos.getReleaseByTag({
+                    owner: owner,
+                    repo: repoName,
+                    tag: tag,
+                })
+                return release.data
+            }
+        }
+
+        let release = await getRelease()
+        if (!release) {
+            throw new Error(
+                `Could not find release for tag ${tag}${prerelease ? ' with prerelease' : ''}.`
+            )
         }
 
         // Build regular expressions for all the target triple components
@@ -198,7 +233,7 @@ async function run() {
         let extensionRegex = new RegExp(`${extMatchRegexForm}$`)
 
         // Attempt to find the asset, with matches for arch, vendor, os, libc and extension as appropriate
-        let asset = getReleaseUrl.data.assets.find(obj => {
+        let asset = release.assets.find(obj => {
             let normalized = obj.name.toLowerCase()
             core.info(`checking for arch/vendor/os/glibc triple matches for (normalized) asset [${normalized}]`)
 
@@ -219,9 +254,9 @@ async function run() {
         })
 
         if (!asset) {
-            const found = getReleaseUrl.data.assets.map(f => f.name)
+            const found = release.assets.map(f => f.name)
             throw new Error(
-                `Could not find a release for ${tag}. Found: ${found}`
+                `Could not find asset for ${tag}. Found: ${found}`
             )
         }
 
