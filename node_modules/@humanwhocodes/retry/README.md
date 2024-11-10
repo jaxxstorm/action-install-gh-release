@@ -103,6 +103,22 @@ const text = await retrier.retry(() => fs.readFile("README.md", "utf8"));
 
 The `retry()` method will either pass through the result on success or wait and retry on failure. Any error that isn't caught by the retrier is automatically rejected so the end result is a transparent passing through of both success and failure.
 
+You can also pass an `AbortSignal` to cancel a retry:
+
+```js
+import fs from "fs/promises";
+
+const controller = new AbortController();
+const retrier = new Retrier(error => {
+    return error.code === "ENFILE" || error.code === "EMFILE";
+});
+
+const text = await retrier.retry(
+    () => fs.readFile("README.md", "utf8"),
+    { signal: controller.signal }
+);
+```
+
 ## Developer Setup
 
 1. Fork the repository
