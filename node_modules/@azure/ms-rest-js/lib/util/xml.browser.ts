@@ -13,7 +13,7 @@ let ttPolicy: Pick<TrustedTypePolicy, "createHTML"> | undefined;
 try {
   if (typeof self.trustedTypes !== "undefined") {
     ttPolicy = self.trustedTypes.createPolicy("@azure/ms-rest-js#xml.browser", {
-      createHTML: (s) => s,
+      createHTML: (s: any) => s,
     });
   }
 } catch (e) {
