@@ -10,6 +10,13 @@ import { throttling } from "@octokit/plugin-throttling";
 
 const ThrottlingOctokit = GitHub.plugin(throttling);
 
+const SUPPORTED_TAR_EXTENSIONS = [
+  '.tar.gz',
+  '.tar.xz',
+  '.tar.bz2',
+  '.tgz',
+];
+
 interface ToolInfo {
     owner: string;
     assetName: string;
@@ -62,8 +69,8 @@ async function run() {
 
         const [owner, repoName] = repo.split("/")
 
-        // If a project name was manually configured, use it
-        const assetName = core.getInput("asset-name");
+        // Use configured project name if present
+        let assetName = core.getInput("asset-name");
 
         let osMatch: string[] = []
 
@@ -118,7 +125,7 @@ async function run() {
         let extMatchRegexForm = "";
         if (extMatching) {
             if (extension === "") {
-                extMatchRegexForm = "\.(tar.gz|zip|tgz)";
+                extMatchRegexForm = "\.(tar.gz|tar.xz|zip|tgz)";
                 core.info(`==> Using default file extension matching: ${extMatchRegexForm}`);
             } else {
                 extMatchRegexForm = extension;
@@ -248,9 +255,12 @@ async function run() {
             const libcMatches = libcRegex.test(normalized);
             if (!libcMatches) { core.debug("libc calling didn't match"); }
             const extensionMatches = extensionRegex.test(normalized);
-            if (!extensionMatches) { core.debug("extenison didn't match"); }
+            if (!extensionMatches) { core.debug("extension didn't match"); }
 
-            return nameIncluded && osArchMatches && osMatches && vendorMatches && libcMatches && extensionMatches
+            const matches = nameIncluded && osArchMatches && osMatches && vendorMatches && libcMatches && extensionMatches;
+            if (matches) { core.info(`artifact matched: ${normalized}`); }
+
+            return matches;
         })
 
         if (!asset) {
@@ -262,7 +272,7 @@ async function run() {
 
         const url = asset.url
 
-        core.info(`Downloading ${assetName} from ${url}`)
+        core.info(`Downloading ${asset.name} from ${url}`)
         const binPath = await tc.downloadTool(url,
             undefined,
             `token ${token}`,
@@ -275,6 +285,7 @@ async function run() {
         if (extractFn !== undefined) {
             // Release is an archive file so extract it to the destination
             const extractFlags = getExtractFlags(asset.name)
+
             if (extractFlags !== undefined) {
                 core.info(`Attempting to extract archive with custom flags ${extractFlags}`)
                 await extractFn(binPath, dest, extractFlags);
@@ -283,26 +294,43 @@ async function run() {
             }
             core.info(`Automatically extracted release asset ${asset.name} to ${dest}`);
 
-            const bins = fs.readdirSync(finalBinLocation, { withFileTypes: true })
-                .filter(item => item.isFile())
-                .map(bin => bin.name);
-            if (bins.length === 0)
+            // Attempt to find an extracted file that might be a binary matching the project
+            const binFiles = fs.readdirSync(finalBinLocation, { recursive: true, withFileTypes: true })
+              .filter(item => item.name.includes(assetName) && item.isFile());
+            if (binFiles.length === 0)
                 throw new Error(`No files found in ${finalBinLocation}`);
-            else if (bins.length > 1 && renameTo !== "") {
+            else if (binFiles.length > 1 && renameTo !== "") {
                 core.warning("rename-to parameter ignored when installing \
                 a release from an archive that contains multiple files.");
             }
 
-            if (chmodTo !== "") {
-                bins.forEach(bin => {
-                    const binPath = path.join(finalBinLocation, bin);
-                    try {
-                        fs.chmodSync(binPath, chmodTo);
-                        core.info(`chmod'd ${binPath} to ${chmodTo}`)
-                    } catch (chmodErr) {
-                        core.setFailed(`Failed to chmod ${binPath} to ${chmodTo}: ${chmodErr}`);
-                    }
-                });
+            // Ensure binaries that were found are in the dir that will be added to PATH
+            for (const { parentPath, name } of binFiles) {
+              const currentBinPath = path.resolve(path.join(parentPath, name));
+              const finalBinPath = path.resolve(path.join(finalBinLocation, name));
+
+              // If the binary is in a path *other* than the one that will be added to PATH
+              // copy it over
+              if (currentBinPath != finalBinPath) {
+                try {
+                core.debug(`detected binary not in folder on PATH, copying binary from [${currentBinPath}] to [${finalBinPath}]`);
+                fs.copyFileSync(currentBinPath, finalBinPath);
+                } catch (copyErr) {
+                  core.setFailed(`Failed to copy binary to folder in PATH: ${copyErr}`);
+                }
+              }
+
+              // Apply chmod if configured
+              if (chmodTo !== "") {
+                try {
+                  fs.chmodSync(finalBinPath, chmodTo);
+                  core.info(`chmod'd ${finalBinPath} to ${chmodTo}`)
+                } catch (chmodErr) {
+                  core.setFailed(`Failed to chmod ${finalBinPath} to ${chmodTo}: ${chmodErr}`);
+                }
+              }
+
+              core.info(`installed binary [${finalBinPath}] (present in PATH)`);
             }
         } else {
             // As it wasn't an archive we've just downloaded it as a blob, this uses an auto-assigned name which will
@@ -393,8 +421,9 @@ function cachePrimaryKey(info: ToolInfo): string | undefined {
 }
 
 function toolPath(info: ToolInfo): string {
+    let subDir = info.assetName ? info.assetName : info.repoName;
     return path.join(getCacheDirectory(),
-        info.owner, info.assetName, info.tag,
+        info.owner, subDir, info.tag,
         `${info.osPlatform}-${info.osArch}`);
 }
 
@@ -407,7 +436,7 @@ function getCacheDirectory() {
 }
 
 function getExtractFn(assetName: any) {
-    if (assetName.endsWith('.tar.gz') || assetName.endsWith('.tar.bz2') || assetName.endsWith('.tgz')) {
+  if (SUPPORTED_TAR_EXTENSIONS.some(ext => assetName.endsWith(ext))) {
         return tc.extractTar;
     } else if (assetName.endsWith('.zip')) {
         return tc.extractZip;
@@ -417,7 +446,9 @@ function getExtractFn(assetName: any) {
 }
 
 function getExtractFlags(assetName: any) {
-    if (assetName.endsWith('tar.bz2')) {
+    if (assetName.endsWith('tar.xz')) {
+        return "xJ";
+    } else if (assetName.endsWith('tar.bz2')) {
         return "xj";
     } else {
         return undefined;
