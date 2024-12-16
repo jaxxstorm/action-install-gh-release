@@ -41,6 +41,9 @@ inputs:
   binaries-location:
     description: "Specify this parameter if the binaries are not located in the root of the release archive. The parameter should be a relative path to the release archive. For example, if the binaries are located in the 'bin' directory of the release archive, the parameter should be 'bin'."
     required: false
+  asset-name:
+    description: "Use this parameter to specify the name of the asset to download if the repo has multiple assets."
+    required: false
 branding:
   icon: "archive"
   color: "green"
