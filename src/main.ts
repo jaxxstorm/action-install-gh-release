@@ -52,7 +52,7 @@ async function run() {
         const [owner, repoName] = repo.split("/");
         let assetName = core.getInput("asset-name");
         let osMatch: string[] = [];
-        let osPlatform = core.getInput("platform");
+        let osPlatform = escapeRegExp(core.getInput("platform"));
         if (osPlatform === "") {
             switch (os.platform()) {
                 case "linux":
@@ -73,7 +73,7 @@ async function run() {
         core.info(`==> System reported platform: ${os.platform()}`);
         core.info(`==> Using platform: ${osPlatform}`);
         const osArchMatch: string[] = [];
-        let osArch = core.getInput("arch");
+        let osArch = escapeRegExp(core.getInput("arch"));
         if (osArch === "") {
             osArch = os.arch();
             switch (os.arch()) {
@@ -100,7 +100,7 @@ async function run() {
                 extMatchRegexForm = "\\.(tar.gz|tar.xz|zip|tgz)";
                 core.info(`==> Using default file extension matching: ${extMatchRegexForm}`);
             } else {
-                extMatchRegexForm = escapeRegExp(extension);
+                extMatchRegexForm = _.escapeRegExp(extension);
                 core.info(`==> Using custom file extension matching: ${extMatchRegexForm}`);
             }
         } else {
