@@ -1,6 +1,6 @@
 import * as os from "os";
 import * as path from "path";
-import * as _ from "lodash";
+import { escapeRegExp }  from "lodash";
 import * as fs from "fs";
 import * as cache from "@actions/cache";
 import * as core from "@actions/core";
@@ -100,7 +100,7 @@ async function run() {
                 extMatchRegexForm = "\\.(tar.gz|tar.xz|zip|tgz)";
                 core.info(`==> Using default file extension matching: ${extMatchRegexForm}`);
             } else {
-                extMatchRegexForm = _.escapeRegExp(extension);
+                extMatchRegexForm = escapeRegExp(extension);
                 core.info(`==> Using custom file extension matching: ${extMatchRegexForm}`);
             }
         } else {
