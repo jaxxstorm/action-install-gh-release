@@ -1,6 +1,7 @@
 import * as os from "os";
 import * as path from "path";
-import { escapeRegExp }  from "lodash";
+import lo from 'lodash';
+const { escapeRegExp } = lo;
 import * as fs from "fs";
 import * as cache from "@actions/cache";
 import * as core from "@actions/core";
