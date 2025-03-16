@@ -100,7 +100,7 @@ async function run() {
                 extMatchRegexForm = "\\.(tar.gz|tar.xz|zip|tgz)";
                 core.info(`==> Using default file extension matching: ${extMatchRegexForm}`);
             } else {
-                extMatchRegexForm = _.escapeRegExp(extension);
+                extMatchRegexForm = escapeRegExp(extension);
                 core.info(`==> Using custom file extension matching: ${extMatchRegexForm}`);
             }
         } else {
