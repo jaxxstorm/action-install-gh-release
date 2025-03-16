@@ -16,6 +16,7 @@ module.exports = {
         docs: {
             description: "Enforce consistent naming when capturing the current execution context",
             recommended: false,
+            frozen: true,
             url: "https://eslint.org/docs/latest/rules/consistent-this"
         },
 
@@ -28,6 +29,8 @@ module.exports = {
             uniqueItems: true
         },
 
+        defaultOptions: ["that"],
+
         messages: {
             aliasNotAssignedToThis: "Designated alias '{{name}}' is not assigned to 'this'.",
             unexpectedAlias: "Unexpected alias '{{name}}' for 'this'."
@@ -35,14 +38,8 @@ module.exports = {
     },
 
     create(context) {
-        let aliases = [];
+        const aliases = context.options;
         const sourceCode = context.sourceCode;
-
-        if (context.options.length === 0) {
-            aliases.push("that");
-        } else {
-            aliases = context.options;
-        }
 
         /**
          * Reports that a variable declarator or assignment expression is assigning
@@ -122,8 +119,17 @@ module.exports = {
         function ensureWasAssigned(node) {
             const scope = sourceCode.getScope(node);
 
+            // if this is program scope we also need to check module scope
+            const extraScope = node.type === "Program" && node.sourceType === "module"
+                ? scope.childScopes[0]
+                : null;
+
             aliases.forEach(alias => {
                 checkWasAssigned(alias, scope);
+
+                if (extraScope) {
+                    checkWasAssigned(alias, extraScope);
+                }
             });
         }
 

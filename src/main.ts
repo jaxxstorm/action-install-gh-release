@@ -6,9 +6,10 @@ import * as cache from "@actions/cache";
 import * as core from "@actions/core";
 import * as tc from "@actions/tool-cache";
 import { GitHub, getOctokitOptions } from "@actions/github/lib/utils";
+import { Octokit } from "@octokit/rest";
 import { throttling } from "@octokit/plugin-throttling";
 
-const ThrottlingOctokit = GitHub.plugin(throttling);
+const ThrottlingOctokit = Octokit.plugin(throttling) as typeof Octokit;
 
 const SUPPORTED_TAR_EXTENSIONS = [
   '.tar.gz',
