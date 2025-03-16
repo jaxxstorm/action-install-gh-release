@@ -20,6 +20,8 @@ module.exports = {
     meta: {
         type: "suggestion",
 
+        defaultOptions: [{}],
+
         docs: {
             description: "Disallow the use of `console`",
             recommended: false,
@@ -47,13 +49,14 @@ module.exports = {
 
         messages: {
             unexpected: "Unexpected console statement.",
-            removeConsole: "Remove the console.{{ propertyName }}()."
+            limited: "Unexpected console statement. Only these console methods are allowed: {{ allowed }}.",
+            removeConsole: "Remove the console.{{ propertyName }}().",
+            removeMethodCall: "Remove the console method call."
         }
     },
 
     create(context) {
-        const options = context.options[0] || {};
-        const allowed = options.allow || [];
+        const [{ allow: allowed = [] }] = context.options;
         const sourceCode = context.sourceCode;
 
         /**
@@ -163,21 +166,29 @@ module.exports = {
         function report(reference) {
             const node = reference.identifier.parent;
 
-            const propertyName = astUtils.getStaticPropertyName(node);
+            const suggest = [];
 
+            if (canProvideSuggestions(node)) {
+                const suggestion = {
+                    fix(fixer) {
+                        return fixer.remove(node.parent.parent);
+                    }
+                };
+
+                if (node.computed) {
+                    suggestion.messageId = "removeMethodCall";
+                } else {
+                    suggestion.messageId = "removeConsole";
+                    suggestion.data = { propertyName: node.property.name };
+                }
+                suggest.push(suggestion);
+            }
             context.report({
                 node,
                 loc: node.loc,
-                messageId: "unexpected",
-                suggest: canProvideSuggestions(node)
-                    ? [{
-                        messageId: "removeConsole",
-                        data: { propertyName },
-                        fix(fixer) {
-                            return fixer.remove(node.parent.parent);
-                        }
-                    }]
-                    : []
+                messageId: allowed.length ? "limited" : "unexpected",
+                data: { allowed: allowed.join(", ") },
+                suggest
             });
         }
 

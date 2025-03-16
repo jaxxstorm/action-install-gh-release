@@ -2,6 +2,7 @@
   "name": "action-install-gh-release",
   "version": "1.10.0",
   "private": true,
+  "type": "module",
   "description": "Install a GitHub release binary in a GitHub Actions build environment",
   "main": "lib/main.js",
   "scripts": {
@@ -14,18 +15,20 @@
   "author": "Lee Briggs",
   "license": "Apache-2.0",
   "dependencies": {
-    "@actions/core": "^1.10.0",
+    "@actions/cache": "^4.0.2",
     "@actions/exec": "^1.1.1",
-    "@actions/github": "^5.1.1",
+    "@actions/github": "^6.0.0",
     "@actions/tool-cache": "^2.0.1",
-    "@octokit/plugin-throttling": "^5.0.1",
-    "cache": "github:actions/cache",
+    "@octokit/core": "^6.1.4",
+    "@octokit/plugin-throttling": "^9.4.0",
+    "@octokit/rest": "^21.1.1",
     "eslint": "^9.2.0",
+    "lodash": "^4.17.21",
     "minimist": "^1.2.7",
-    "mkdirp-promise": "^5.0.1",
     "node-fetch": "^3.3.0"
   },
   "devDependencies": {
+    "@types/lodash": "^4.17.16",
     "@types/node": "^20.17.6",
     "typescript": "^4.9.4"
   }

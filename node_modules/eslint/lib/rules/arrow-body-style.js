@@ -19,9 +19,12 @@ module.exports = {
     meta: {
         type: "suggestion",
 
+        defaultOptions: ["as-needed"],
+
         docs: {
             description: "Require braces around arrow function bodies",
             recommended: false,
+            frozen: true,
             url: "https://eslint.org/docs/latest/rules/arrow-body-style"
         },
 
@@ -71,7 +74,7 @@ module.exports = {
     create(context) {
         const options = context.options;
         const always = options[0] === "always";
-        const asNeeded = !options[0] || options[0] === "as-needed";
+        const asNeeded = options[0] === "as-needed";
         const never = options[0] === "never";
         const requireReturnForObjectLiteral = options[1] && options[1].requireReturnForObjectLiteral;
         const sourceCode = context.sourceCode;
@@ -140,7 +143,7 @@ module.exports = {
 
                     if (blockBody.length === 0) {
                         messageId = "unexpectedEmptyBlock";
-                    } else if (blockBody.length > 1) {
+                    } else if (blockBody.length > 1 || blockBody[0].type !== "ReturnStatement") {
                         messageId = "unexpectedOtherBlock";
                     } else if (blockBody[0].argument === null) {
                         messageId = "unexpectedSingleBlock";

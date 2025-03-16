@@ -129,7 +129,7 @@ jobs:
           tag: ${{ matrix.version }}
           platform: ${{ matrix.platform }}
           arch: ${{ matrix.arch }}
-          extension: "\\.bz2"
+          extension: ".bz2"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: grcov --version
@@ -249,6 +249,6 @@ jobs:
         with:
           repo: bytecodealliance/weval
           tag: ${{ matrix.version }}
-          extension: "\\.xz"
+          extension: ".xz"
       - run:
           weval --version

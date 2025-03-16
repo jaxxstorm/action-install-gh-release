@@ -161,6 +161,10 @@ const text = await retrier.retry(
 3. Run `npm install` to setup dependencies
 4. Run `npm test` to run tests
 
+### Debug Output
+
+Enable debugging output by setting the `DEBUG` environment variable to `"@hwc/retry"` before running.
+
 ## License
 
 Apache 2.0
