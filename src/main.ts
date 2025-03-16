@@ -5,7 +5,6 @@ import * as fs from "fs";
 import * as cache from "@actions/cache";
 import * as core from "@actions/core";
 import * as tc from "@actions/tool-cache";
-import * as github from "@actions/github";
 import { Octokit } from "@octokit/rest";
 import { throttling } from "@octokit/plugin-throttling";
 
