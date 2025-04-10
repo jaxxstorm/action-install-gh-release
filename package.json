@@ -20,7 +20,7 @@
     "@actions/github": "^6.0.0",
     "@actions/tool-cache": "^2.0.1",
     "@octokit/core": "^6.1.4",
-    "@octokit/plugin-throttling": "^9.4.0",
+    "@octokit/plugin-throttling": "^10.0.0",
     "@octokit/rest": "^21.1.1",
     "eslint": "^9.2.0",
     "lodash": "^4.17.21",
