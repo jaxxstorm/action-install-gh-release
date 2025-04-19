@@ -12,8 +12,11 @@ inputs:
     description: "tag containing binary to install"
     default: latest
     required: true
+  digest:
+    description: "SHA256 digest of the release asset. Specify this parameter to verify the integrity of the downloaded asset."
+    required: false
   prerelease:
-    description: "considerer prerelease for latest tag"
+    description: "consider prerelease for latest tag"
     default: "false"
     required: false
   platform:
