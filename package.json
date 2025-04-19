@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "description": "Install a GitHub release binary in a GitHub Actions build environment",
-  "main": "lib/main.js",
+  "main": "dist/index.js",
   "scripts": {
-    "build": "tsc"
+    "build": "ncc build src/main.ts"
   },
   "repository": {
     "type": "git",
@@ -23,6 +23,7 @@
     "@octokit/plugin-throttling": "^9.4.0",
     "@octokit/rest": "^21.1.1",
     "eslint": "^9.2.0",
+    "hasha": "^6.0.0",
     "lodash": "^4.17.21",
     "minimist": "^1.2.7",
     "node-fetch": "^3.3.0"
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@types/lodash": "^4.17.16",
     "@types/node": "^20.17.6",
+    "@vercel/ncc": "^0.38.3",
     "typescript": "^4.9.4"
   }
 }
