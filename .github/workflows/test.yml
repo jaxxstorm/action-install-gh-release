@@ -36,6 +36,7 @@ jobs:
         with:
           repo: pulumi/crd2pulumi
           tag: v1.0.10
+          digest: ef1cb401b8f9f851a9259af30120e8f0d2aa1846cb7866bb2c83b1770998d4ae
 
   change-aws-credentials:
     strategy:
@@ -50,6 +51,7 @@ jobs:
         with:
           repo: jaxxstorm/change-aws-credentials
           tag: v0.4.0
+          digest: 8e8e3db429bc181550a41dd585c776913dcc3d7735ff3c93056f22a5bf6c2c98
       - run: change-aws-credentials version
 
   tfsec:
@@ -175,6 +177,7 @@ jobs:
         with:
           repo: prometheus/prometheus
           tag: 'v2.37.9'
+          digest: 8740d2371c2a40f8473c80060fae5fd95829982f05095f361c28ac351c15ade8
           platform: linux
           arch: amd64
           cache: enable
