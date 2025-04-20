@@ -31,7 +31,6 @@
   "devDependencies": {
     "@types/lodash": "^4.17.16",
     "@types/node": "^20.17.6",
-    "@vercel/ncc": "^0.38.3",
     "typescript": "^4.9.4"
   }
 }
