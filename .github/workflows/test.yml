@@ -26,8 +26,12 @@ jobs:
   crd2pulumi:
     strategy:
       matrix:
-        runs-on: ["ubuntu-latest", "macos-latest"]
-    runs-on: ${{ matrix.runs-on }}
+        build:
+          - runs-on: "ubuntu-latest"
+            digest: ef1cb401b8f9f851a9259af30120e8f0d2aa1846cb7866bb2c83b1770998d4ae
+          - runs-on: "macos-latest"
+            digest: d96f62238b800a1eeb534fb768e3ac24e1f7454b6acd4dddbbe30ef7fe572b3e
+    runs-on: ${{ matrix.build.runs-on }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - run: npm ci
@@ -36,13 +40,17 @@ jobs:
         with:
           repo: pulumi/crd2pulumi
           tag: v1.0.10
-          digest: ef1cb401b8f9f851a9259af30120e8f0d2aa1846cb7866bb2c83b1770998d4ae
+          digest: ${{ matrix.build.digest }}
 
   change-aws-credentials:
     strategy:
       matrix:
-        runs-on: ["ubuntu-latest", "macos-latest"]
-    runs-on: ${{ matrix.runs-on }}
+        build:
+          - runs-on: "ubuntu-latest"
+            digest: 8e8e3db429bc181550a41dd585c776913dcc3d7735ff3c93056f22a5bf6c2c98
+          - runs-on: "macos-latest"
+            digest: 6fc42fd669311444b0d1c7768d05a8562af3397b79076cc49c07947d757f698d
+    runs-on: ${{ matrix.build.runs-on }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - run: npm ci
@@ -51,7 +59,7 @@ jobs:
         with:
           repo: jaxxstorm/change-aws-credentials
           tag: v0.4.0
-          digest: 8e8e3db429bc181550a41dd585c776913dcc3d7735ff3c93056f22a5bf6c2c98
+          digest: ${{ matrix.build.digest }}
       - run: change-aws-credentials version
 
   tfsec:
