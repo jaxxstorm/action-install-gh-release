@@ -1,5 +1,7 @@
 __tests__/runner/*
 
+node_modules
+
 # Rest pulled from https://github.com/github/gitignore/blob/master/Node.gitignore
 # Logs
 logs
