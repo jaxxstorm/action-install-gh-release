@@ -29,8 +29,8 @@
     "node-fetch": "^3.3.0"
   },
   "devDependencies": {
-    "@types/lodash": "^4.17.16",
-    "@types/node": "^20.17.6",
-    "typescript": "^5.8.3"
+    "@types/lodash": "4.17.16",
+    "@types/node": "20.17.6",
+    "typescript": "5.8.3"
   }
 }
