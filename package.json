@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "description": "Install a GitHub release binary in a GitHub Actions build environment",
-  "main": "dist/index.js",
+  "main": "lib/index.js",
   "scripts": {
     "build": "ncc build src/main.ts"
   },
