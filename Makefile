@@ -4,13 +4,14 @@
 SHELL := /bin/bash
 SRC_DIR := src
 BUILD_DIR := lib
-ENTRY_POINT := $(SRC_DIR)/index.ts
+ENTRY_POINT := $(SRC_DIR)/main.ts
 
 # Binaries
 TS_NODE := ./node_modules/.bin/ts-node
 TS_C := ./node_modules/.bin/tsc
 ESLINT := ./node_modules/.bin/eslint
 PRETTIER := ./node_modules/.bin/prettier
+NCC := ./node_modules/.bin/ncc
 
 # Targets
 .PHONY: all clean install build format
@@ -24,6 +25,12 @@ clean:
 # Install npm dependencies
 install:
 	npm install
+
+dev:
+	npm install --save-dev
+
+prepare:
+	$(NCC) build $(ENTRY_POINT) -o $(BUILD_DIR)
 
 # Build the TypeScript code
 build: clean
