@@ -142,7 +142,8 @@ jobs:
           extension: ".bz2"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Install TCMalloc for grcov
+      - name: Install TCMalloc as expected by grcov
+        if: startsWith(matrix.runs-on, 'ubuntu')
         run: sudo apt-get update && sudo apt-get install -y libunwind-dev libgoogle-perftools-dev
       - run: grcov --version
 
