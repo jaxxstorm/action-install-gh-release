@@ -32,6 +32,6 @@
     "@types/lodash": "4.17.18",
     "@types/node": "20.17.6",
     "@vercel/ncc": "0.38.3",
-    "typescript": "5.8.3"
+    "typescript": "5.9.3"
   }
 }
