@@ -6,7 +6,8 @@
   "description": "Install a GitHub release binary in a GitHub Actions build environment",
   "main": "lib/index.js",
   "scripts": {
-    "build": "ncc build src/main.ts"
+    "build": "ncc build src/main.ts",
+    "docs": "action-docs --update-readme"
   },
   "repository": {
     "type": "git",
@@ -32,6 +33,7 @@
     "@types/lodash": "4.17.18",
     "@types/node": "20.17.6",
     "@vercel/ncc": "0.38.3",
+    "action-docs": "^2.5.1",
     "typescript": "5.8.3"
   }
 }

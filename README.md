@@ -168,6 +168,30 @@ can be specified to control whether to treat the asset as binary and/or modify i
       extension-matching: disable
 ```
 
+<!-- action-docs-inputs source="action.yml" -->
+## Inputs
+
+| name | description | required | default |
+| --- | --- | --- | --- |
+| `token` | <p>GITHUB_TOKEN or a <code>repo</code> scoped Personal Access Token (PAT)</p> | `false` | `${{ github.token }}` |
+| `repo` | <p>GitHub repo where binary is located</p> | `true` | `""` |
+| `tag` | <p>tag containing binary to install</p> | `true` | `latest` |
+| `digest` | <p>SHA256 digest of the release asset. Specify this parameter to verify the integrity of the downloaded asset.</p> | `false` | `""` |
+| `prerelease` | <p>Consider prerelease for latest tag</p> | `false` | `false` |
+| `platform` | <p>OS Platform to match in release package. Specify this parameter if the repository releases do not follow a normal convention otherwise it will be auto-detected.</p> | `false` | `""` |
+| `arch` | <p>OS Architecture to match in release package. Specify this parameter if the repository releases do not follow a normal convention otherwise it will be auto-detected.</p> | `false` | `""` |
+| `extension` | <p>Custom file extension to match in release package.  Specify this parameter if the repository releases do not provide a .tar.gz or .zip format release.</p> | `false` | `""` |
+| `extension-matching` | <p>Enable/disable file extension matching in release package.  Specify this parameter if the repository releases do not have a file extension e.g. they are pure binaries.</p> | `false` | `enable` |
+| `rename-to` | <p>When installing a release that is not an archive, e.g. a pure binary, this controls how the downloaded release asset is renamed.  Specify this parameter if installing a non-archive release.</p> | `false` | `""` |
+| `chmod` | <p>When installing a release that is not an archive, e.g. a pure binary, this controls how the downloaded release asset is chmod'd.  Specify this parameter if installing a non-archive release and you need to change its permissions e.g. make it executable.</p> | `false` | `""` |
+| `cache` | <p>When set to 'enable', caches the downloads of known tags with actions/cache</p> | `false` | `""` |
+| `binaries-location` | <p>Specify this parameter if the binaries are not located in the root of the release archive. The parameter should be a relative path to the release archive. For example, if the binaries are located in the 'bin' directory of the release archive, the parameter should be 'bin'.</p> | `false` | `""` |
+| `asset-name` | <p>Use this parameter to specify the name of the asset to download if the repo has multiple assets.</p> | `false` | `""` |
+<!-- action-docs-inputs source="action.yml" -->
+<!-- action-docs-outputs source="action.yml" -->
+
+<!-- action-docs-outputs source="action.yml" -->
+
 ## Finding a release
 
 By default, this action will look up the Platform and Architecture of the runner and use those values to interpolate and match a release package. **The release package name is first converted to lowercase**.
