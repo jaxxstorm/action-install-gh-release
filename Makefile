@@ -14,7 +14,7 @@ PRETTIER := ./node_modules/.bin/prettier
 NCC := ./node_modules/.bin/ncc
 
 # Targets
-.PHONY: all clean install build format
+.PHONY: all clean install build format prepare typecheck
 
 all: clean install build
 
@@ -32,9 +32,13 @@ dev:
 prepare:
 	$(NCC) build $(ENTRY_POINT) -o $(BUILD_DIR)
 
-# Build the TypeScript code
+# Bundle the action into the runtime directory used by action.yml
 build: clean
-	$(TS_C) --outDir $(BUILD_DIR) --rootDir $(SRC_DIR)
+	$(NCC) build $(ENTRY_POINT) -o $(BUILD_DIR)
+
+# Type-check the TypeScript sources without writing output
+typecheck:
+	$(TS_C) --noEmit
 
 # Lint the TypeScript code
 lint:
@@ -47,5 +51,4 @@ format:
 # Run the action locally (for testing purposes)
 run: build
 	node $(BUILD_DIR)/index.js
-
 

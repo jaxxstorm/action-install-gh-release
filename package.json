@@ -1,12 +1,12 @@
 {
   "name": "action-install-gh-release",
-  "version": "1.10.0",
+  "version": "3.0.0",
   "private": true,
   "type": "module",
   "description": "Install a GitHub release binary in a GitHub Actions build environment",
   "main": "lib/index.js",
   "scripts": {
-    "build": "ncc build src/main.ts",
+    "build": "ncc build src/main.ts -o lib",
     "docs": "action-docs --update-readme"
   },
   "repository": {
@@ -16,24 +16,24 @@
   "author": "Lee Briggs",
   "license": "Apache-2.0",
   "dependencies": {
-    "@actions/cache": "^4.0.2",
-    "@actions/exec": "^1.1.1",
-    "@actions/github": "^6.0.0",
-    "@actions/tool-cache": "^2.0.1",
-    "@octokit/core": "^7.0.0",
-    "@octokit/plugin-throttling": "^11.0.0",
-    "@octokit/rest": "^22.0.0",
-    "eslint": "^9.2.0",
-    "hasha": "^6.0.0",
+    "@actions/cache": "^6.0.0",
+    "@actions/exec": "^3.0.0",
+    "@actions/github": "^9.0.0",
+    "@actions/tool-cache": "^4.0.0",
+    "@octokit/core": "^7.0.6",
+    "@octokit/plugin-throttling": "^11.0.3",
+    "@octokit/rest": "^22.0.1",
+    "eslint": "^10.1.0",
+    "hasha": "^7.0.0",
     "lodash": "^4.17.23",
-    "minimist": "^1.2.7",
-    "node-fetch": "^3.3.0"
+    "minimist": "^1.2.8",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
-    "@types/lodash": "4.17.18",
-    "@types/node": "20.17.6",
+    "@types/lodash": "4.17.24",
+    "@types/node": "25.5.0",
     "@vercel/ncc": "0.38.4",
     "action-docs": "^2.5.1",
-    "typescript": "5.8.3"
+    "typescript": "6.0.2"
   }
 }

@@ -14,7 +14,10 @@ jobs:
         runs-on: ["ubuntu-latest", "macos-latest"]
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -33,7 +36,10 @@ jobs:
             digest: d96f62238b800a1eeb534fb768e3ac24e1f7454b6acd4dddbbe30ef7fe572b3e
     runs-on: ${{ matrix.build.runs-on }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -52,7 +58,10 @@ jobs:
             digest: 6fc42fd669311444b0d1c7768d05a8562af3397b79076cc49c07947d757f698d
     runs-on: ${{ matrix.build.runs-on }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -77,7 +86,10 @@ jobs:
             platform: windows
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -101,7 +113,10 @@ jobs:
             platform: darwin
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -130,7 +145,10 @@ jobs:
             platform: darwin
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -158,7 +176,10 @@ jobs:
             platform: linux
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -181,7 +202,10 @@ jobs:
             platform: linux
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -204,7 +228,10 @@ jobs:
         runs-on: [ "ubuntu-latest" ]
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -221,7 +248,10 @@ jobs:
         runs-on: [ "ubuntu-latest" ]
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -240,7 +270,10 @@ jobs:
         runs-on: ["ubuntu-latest"]
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -256,7 +289,10 @@ jobs:
         runs-on: [ "ubuntu-latest" ]
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
       - run: npm ci
       - run: npm run build
       - uses: ./
