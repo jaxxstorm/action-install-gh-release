@@ -7,7 +7,9 @@
   "main": "lib/index.js",
   "scripts": {
     "build": "ncc build src/main.ts -o lib",
-    "docs": "action-docs --update-readme"
+    "docs": "action-docs --update-readme",
+    "test:unit": "vitest run",
+    "test:unit:coverage": "vitest run --coverage"
   },
   "repository": {
     "type": "git",
@@ -33,7 +35,9 @@
     "@types/lodash": "4.17.24",
     "@types/node": "25.6.0",
     "@vercel/ncc": "0.38.4",
+    "@vitest/coverage-v8": "^4.1.4",
     "action-docs": "2.5.1",
-    "typescript": "6.0.2"
+    "typescript": "6.0.2",
+    "vitest": "^4.1.4"
   }
 }
