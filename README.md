@@ -4,6 +4,24 @@ This repository contains an action for use with GitHub Actions, which will insta
 
 This is especially useful when installing arbitrary Go binaries. It can lookup the latest version, or download a specific tag.
 
+## Testing
+
+The repository keeps the existing workflow-level integration tests and now also runs fast unit tests with coverage enforced for `src/install.ts`.
+
+Run the unit tests locally with:
+
+```bash
+npm run test:unit
+```
+
+Run the unit tests with coverage locally with:
+
+```bash
+npm run test:unit:coverage
+```
+
+CI uploads the HTML and LCOV coverage output from the `coverage/` directory as the `unit-test-coverage` workflow artifact.
+
 ## Usage
 
 ### Grab the Latest Version
