@@ -41,6 +41,23 @@ steps:
       tag: v0.7.0
 ```
 
+### Verify Download Integrity
+
+When the upstream project publishes stable release digests, pass `digest` so the action verifies
+the downloaded asset before extracting or installing it.
+
+```yaml
+steps:
+  - name: Install promtool with digest verification
+    uses: jaxxstorm/action-install-gh-release@v1.10.0
+    with:
+      repo: prometheus/prometheus
+      tag: v2.37.9
+      digest: 8740d2371c2a40f8473c80060fae5fd95829982f05095f361c28ac351c15ade8
+      platform: linux
+      arch: amd64
+```
+
 ### Grab a Specific Platform And/Or Architecture
 
 ```yaml
@@ -191,6 +208,12 @@ can be specified to control whether to treat the asset as binary and/or modify i
 <!-- action-docs-outputs source="action.yml" -->
 
 <!-- action-docs-outputs source="action.yml" -->
+
+## Security
+
+Please report vulnerabilities privately via GitHub Security Advisories:
+
+https://github.com/jaxxstorm/action-install-gh-release/security/advisories/new
 
 ## Finding a release
 
