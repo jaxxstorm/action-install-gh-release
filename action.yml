@@ -5,6 +5,10 @@ inputs:
   token:
     description: 'GITHUB_TOKEN or a `repo` scoped Personal Access Token (PAT)'
     default: ${{ github.token }}
+  url:
+    description: "GitHub base URL or API URL. Defaults to GitHub.com. If set, `https://github.example.com` is normalized to `https://github.example.com/api/v3`. `GITHUB_API_URL` takes precedence over this input."
+    default: https://github.com
+    required: false
   repo:
     description: "GitHub repo where binary is located"
     required: true
