@@ -83,6 +83,36 @@ steps:
       repo: my-org/my-private-repo
 ```
 
+### GitHub Enterprise support
+
+This action defaults to GitHub.com. For GitHub Enterprise Server, set either the
+`url` input or `GITHUB_API_URL` environment variable.
+
+`GITHUB_API_URL` takes precedence over `url`.
+
+If you provide a GitHub base URL like `https://github.example.com`, the action
+automatically uses `https://github.example.com/api/v3` for API requests. If you
+provide a full API URL, it is used as-is.
+
+```yaml
+steps:
+  - name: Install from GitHub Enterprise
+    uses: jaxxstorm/action-install-gh-release@v1.10.0
+    with:
+      repo: my-org/my-tool
+      url: https://github.example.com
+```
+
+```yaml
+steps:
+  - name: Install from GitHub Enterprise with explicit API URL
+    uses: jaxxstorm/action-install-gh-release@v1.10.0
+    env:
+      GITHUB_API_URL: https://github.example.com/api/v3
+    with:
+      repo: my-org/my-tool
+```
+
 ### Caching
 
 This action can use [actions/cache](https://github.com/actions/cache) under the hood. Caching needs to be enabled explicitly and only works for specific tags.
@@ -191,6 +221,7 @@ can be specified to control whether to treat the asset as binary and/or modify i
 | name | description | required | default |
 | --- | --- | --- | --- |
 | `token` | <p>GITHUB_TOKEN or a <code>repo</code> scoped Personal Access Token (PAT)</p> | `false` | `${{ github.token }}` |
+| `url` | <p>GitHub base URL or API URL. Defaults to GitHub.com. If set, <code>https://github.example.com</code> is normalized to <code>https://github.example.com/api/v3</code>. <code>GITHUB_API_URL</code> takes precedence over this input.</p> | `false` | `https://github.com` |
 | `repo` | <p>GitHub repo where binary is located</p> | `true` | `""` |
 | `tag` | <p>tag containing binary to install</p> | `true` | `latest` |
 | `digest` | <p>SHA256 digest of the release asset. Specify this parameter to verify the integrity of the downloaded asset.</p> | `false` | `""` |

@@ -22,9 +22,34 @@ interface ToolInfo {
     osArch: string;
 }
 
+function getGitHubApiBaseUrl(): string {
+    const configuredUrl = process.env["GITHUB_API_URL"] || core.getInput("url");
+
+    if (configuredUrl === "") {
+        return "https://api.github.com";
+    }
+
+    const normalizedUrl = configuredUrl.replace(/\/+$/, "");
+
+    if (normalizedUrl === "https://github.com") {
+        return "https://api.github.com";
+    }
+
+    if (normalizedUrl === "https://api.github.com") {
+        return normalizedUrl;
+    }
+
+    if (normalizedUrl.endsWith("/api/v3")) {
+        return normalizedUrl;
+    }
+
+    return `${normalizedUrl}/api/v3`;
+}
+
 async function run() {
     try {
         const token = process.env["GITHUB_TOKEN"] || core.getInput("token");
+        const githubApiBaseUrl = getGitHubApiBaseUrl();
         const octokit = new ThrottlingOctokit({
             throttle: {
                 onRateLimit: (retryAfter, options) => {
@@ -40,9 +65,10 @@ async function run() {
             },
             auth: token,
             userAgent: "actions/github-action",
-            baseUrl: process.env["GITHUB_API_URL"] || "https://api.github.com",
+            baseUrl: githubApiBaseUrl,
             request: { timeout: 5000 },
         });
+        core.info(`==> Using GitHub API URL: ${githubApiBaseUrl}`);
         const repo = core.getInput("repo");
         if (!repo) {
             throw new Error("Repo was not specified");
