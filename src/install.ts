@@ -48,6 +48,8 @@ export interface ToolInfo {
     tag: string;
     osPlatform: string;
     osArch: string;
+    platformMatching?: boolean;
+    archMatching?: boolean;
 }
 
 export interface ReleaseAsset {
@@ -168,6 +170,8 @@ export function findMatchingAsset(
         osPlatform: string;
         osArchMatch: string[];
         extensionMatchRegexForm: string;
+        platformMatching?: boolean;
+        archMatching?: boolean;
     },
     logger: Logger
 ): ReleaseAsset | undefined {
@@ -184,11 +188,11 @@ export function findMatchingAsset(
         if (!nameIncluded) {
             logger.debug(`name [${options.assetName}] wasn't included in [${normalized}]`);
         }
-        const osArchMatches = osArchRegex.test(normalized);
+        const osArchMatches = options.archMatching === false || osArchRegex.test(normalized);
         if (!osArchMatches) {
             logger.debug("osArch didn't match");
         }
-        const osMatches = osRegex.test(normalized);
+        const osMatches = options.platformMatching === false || osRegex.test(normalized);
         if (!osMatches) {
             logger.debug("os didn't match");
         }
@@ -222,7 +226,8 @@ export function cachePrimaryKey(info: ToolInfo): string | undefined {
     if (info.tag === "latest") {
         return undefined;
     }
-    return "action-install-gh-release/" + `${info.owner}/${info.assetName}/${info.tag}/${info.osPlatform}-${info.osArch}`;
+    const matchingSuffix = `${info.platformMatching === false ? "/no-platform" : ""}${info.archMatching === false ? "/no-arch" : ""}`;
+    return "action-install-gh-release/" + `${info.owner}/${info.assetName}/${info.tag}/${info.osPlatform}-${info.osArch}${matchingSuffix}`;
 }
 
 export function toolPath(info: ToolInfo, cacheDirectory: string): string {

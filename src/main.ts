@@ -58,6 +58,14 @@ async function run() {
         const cacheEnabled = core.getInput("cache") === "enable" && tag !== "latest" && tag !== "";
         const [owner, repoName] = repo.split("/");
         let assetName = core.getInput("asset-name");
+        const platformMatching = core.getInput("platform-matching") !== "disable";
+        const archMatching = core.getInput("arch-matching") !== "disable";
+        if (!platformMatching) {
+            core.info("==> Platform matching disabled");
+        }
+        if (!archMatching) {
+            core.info("==> Architecture matching disabled");
+        }
         let osPlatform = resolvePlatform(core.getInput("platform"), os.platform());
         core.info(`==> System reported platform: ${os.platform()}`);
         core.info(`==> Using platform: ${osPlatform}`);
@@ -90,7 +98,9 @@ async function run() {
             assetName,
             tag,
             osArch,
-            osPlatform
+            osPlatform,
+            platformMatching,
+            archMatching
         };
         let dest = toolPath(toolInfo, getCacheDirectory());
         let binariesLocation = core.getInput("binaries-location");
@@ -118,6 +128,8 @@ async function run() {
             assetName,
             osPlatform,
             osArchMatch,
+            platformMatching,
+            archMatching,
             extensionMatchRegexForm: extMatchRegexForm
         }, core);
         if (!asset) {
