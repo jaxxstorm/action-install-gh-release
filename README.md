@@ -4,7 +4,50 @@ This repository contains an action for use with GitHub Actions, which will insta
 
 This is especially useful when installing arbitrary Go binaries. It can lookup the latest version, or download a specific tag.
 
+## Testing
+
+The repository keeps the existing workflow-level integration tests and now also runs fast unit tests with coverage enforced for `src/install.ts`.
+
+Run the unit tests locally with:
+
+```bash
+npm run test:unit
+```
+
+Run the unit tests with coverage locally with:
+
+```bash
+npm run test:unit:coverage
+```
+
+CI uploads the HTML and LCOV coverage output from the `coverage/` directory as the `unit-test-coverage` workflow artifact.
+
 ## Usage
+
+### Private repositories
+
+Public repositories can be installed without a token, including when running
+locally with `nektos/act`. If neither `token` nor `GITHUB_TOKEN` is available,
+release lookups and downloads use anonymous requests. GitHub's lower
+unauthenticated API rate limits apply; supplying a token increases those limits.
+
+Pass a token with read access to the release repository using `with.token` when
+installing from a private repository. The token input takes precedence over the
+`GITHUB_TOKEN` environment variable; the environment variable is used only when
+the input is empty. By default, the input is `${{ github.token }}`, which normally
+only has access to the repository running the workflow.
+
+The action downloads assets through the authenticated GitHub API using the
+`application/octet-stream` media type. Opening a private asset's API URL in a
+browser without the same authentication can return `Not Found` even after a
+successful installation. A download that actually returns HTTP 404 fails the
+action and reports token-access guidance.
+
+### Archives with nested directories
+
+Files in nested archive directories are copied into the directory added to PATH.
+Use `binaries-location` to limit this to a particular directory inside the archive.
+`asset-name` selects the release archive; it does not filter filenames inside it.
 
 ### Grab the Latest Version
 
@@ -15,6 +58,18 @@ steps:
     uses: jaxxstorm/action-install-gh-release@v1.10.0
     with: # Grab the latest version
       repo: go-task/task
+```
+
+### Grab the Latest PreRelease Version
+
+```yaml
+# ...
+steps:
+  - name: Install go-task
+    uses: jaxxstorm/action-install-gh-release@v1.10.0
+    with: # Grab the latest version
+      repo: go-task/task
+      prerelease: true
 ```
 
 ### Grab Specific Tags
@@ -29,6 +84,23 @@ steps:
       tag: v0.7.0
 ```
 
+### Verify Download Integrity
+
+When the upstream project publishes stable release digests, pass `digest` so the action verifies
+the downloaded asset before extracting or installing it.
+
+```yaml
+steps:
+  - name: Install promtool with digest verification
+    uses: jaxxstorm/action-install-gh-release@v1.10.0
+    with:
+      repo: prometheus/prometheus
+      tag: v2.37.9
+      digest: 8740d2371c2a40f8473c80060fae5fd95829982f05095f361c28ac351c15ade8
+      platform: linux
+      arch: amd64
+```
+
 ### Grab a Specific Platform And/Or Architecture
 
 ```yaml
@@ -40,6 +112,31 @@ steps:
       platform: linux
       arch: amd64
 ```
+
+### Asset names without a platform or architecture
+
+Set `arch-matching: disable` for assets such as `cli-linux` that omit the
+architecture. Set `platform-matching: disable` when the operating system is
+missing, or disable both for names such as `cli`. Both default to `enable`.
+Use `asset-name` to narrow the selection when a release contains multiple assets;
+it remains a substring filter, and the first matching asset is selected.
+
+```yaml
+steps:
+  - uses: jaxxstorm/action-install-gh-release@master
+    with:
+      repo: my-org/cli
+      asset-name: cli-linux
+      arch-matching: disable
+      extension-matching: disable
+      rename-to: cli
+      chmod: '0755'
+      token: ${{ secrets.MY_PAT }}
+```
+
+For an asset named simply `cli`, use `asset-name: cli` and also set
+`platform-matching: disable`. Extension matching is controlled independently;
+archives can keep the default extension matching enabled.
 
 ### Grab from a private repository
 
@@ -74,10 +171,10 @@ Caching helps avoid
 
 ### Changing Release File Extensions
 
-As described below this action defaults to assuming that a release is either a `.tar.gz` or a `.zip` archive but this 
+As described below this action defaults to assuming that a release is either a `.tar.gz` or a `.zip` archive but this
 may not always be true for all releases.  For example, a project might release a pure binary, a different archive format, a custom file extension etc.
 
-This action can change its extension-matching behavior via the `extension-matching` and `extension` parameters.  For 
+This action can change its extension-matching behavior via the `extension-matching` and `extension` parameters.  For
 example to match on a `.bz2` extension:
 
 ```yaml
@@ -97,8 +194,8 @@ jobs:
 
 Here the `extension` parameter is used to provide a regular expression for the file extension(s) you want to match.  If
 this is not specified then the action defaults to `\.(tag.gz|zip)`.  Since this is a regular expression being embedded into
-YAML be aware that you may need to provide an extra level of character escaping, in the above example we have a `\\` 
-used to escape the backslash and get an actual `\.` (literal match of the period character) in the regular 
+YAML be aware that you may need to provide an extra level of character escaping, in the above example we have a `\\`
+used to escape the backslash and get an actual `\.` (literal match of the period character) in the regular
 expression passed into the action.
 
 Alternatively, if a project produces pure binary releases with no file extension then you can install them as follows:
@@ -138,15 +235,69 @@ this case. The option `chmod` is applied to all binaries.
       chmod: 0755
 ```
 
-## Finding a release
+### Grab a single asset whose name differs from the repository
 
-By default, this action will look up the Platform and Architecture of the runner and use those values to interpolate and match a release package. **The release package name is first converted to lowercase**. The match pattern is:
+If the repository's release contains multiplie assets (e.g. for many projects),
+you can specify the name of the relevant asset with the `asset-name` parameter.
+Binary-related options (i.e. `rename-to`, `chmod`, and `extension-matching`)
+can be specified to control whether to treat the asset as binary and/or modify it.
 
-```js
-`(osPlatform|osArchs).*(osPlatform|osArchs).*\.(tar\.gz|zip)`;
+```yaml
+  - name: Install the latest wrpc version
+    uses: jaxxstorm/action-install-gh-release@v1.10.0
+    with:
+      repo: bytecodealliance/wrpc
+      asset-name: wit-bindgen-wrpc
+      rename-to: wit-bindgen-wrpc
+      chmod: 0755
+      extension-matching: disable
 ```
 
-Natively, the action will only match the following platforms: `linux`, `darwin`, `windows`.
+<!-- action-docs-inputs source="action.yml" -->
+## Inputs
+
+| name | description | required | default |
+| --- | --- | --- | --- |
+| `token` | <p>GITHUB_TOKEN or a <code>repo</code> scoped Personal Access Token (PAT)</p> | `false` | `${{ github.token }}` |
+| `repo` | <p>GitHub repo where binary is located</p> | `true` | `""` |
+| `tag` | <p>tag containing binary to install</p> | `true` | `latest` |
+| `digest` | <p>SHA256 digest of the release asset. Specify this parameter to verify the integrity of the downloaded asset.</p> | `false` | `""` |
+| `prerelease` | <p>Consider prerelease for latest tag</p> | `false` | `false` |
+| `platform` | <p>OS Platform to match in release package. Specify this parameter if the repository releases do not follow a normal convention otherwise it will be auto-detected.</p> | `false` | `""` |
+| `arch` | <p>OS Architecture to match in release package. Specify this parameter if the repository releases do not follow a normal convention otherwise it will be auto-detected.</p> | `false` | `""` |
+| `platform-matching` | <p>Enable/disable platform matching in the release asset name. Set to disable when asset names omit the operating system.</p> | `false` | `enable` |
+| `arch-matching` | <p>Enable/disable architecture matching in the release asset name. Set to disable when asset names omit the architecture.</p> | `false` | `enable` |
+| `extension` | <p>Custom file extension to match in release package.  Specify this parameter if the repository releases do not provide a .tar.gz or .zip format release.</p> | `false` | `""` |
+| `extension-matching` | <p>Enable/disable file extension matching in release package.  Specify this parameter if the repository releases do not have a file extension e.g. they are pure binaries.</p> | `false` | `enable` |
+| `rename-to` | <p>When installing a release that is not an archive, e.g. a pure binary, this controls how the downloaded release asset is renamed.  Specify this parameter if installing a non-archive release.</p> | `false` | `""` |
+| `chmod` | <p>When installing a release that is not an archive, e.g. a pure binary, this controls how the downloaded release asset is chmod'd.  Specify this parameter if installing a non-archive release and you need to change its permissions e.g. make it executable.</p> | `false` | `""` |
+| `cache` | <p>When set to 'enable', caches the downloads of known tags with actions/cache</p> | `false` | `""` |
+| `binaries-location` | <p>Specify this parameter if the binaries are not located in the root of the release archive. The parameter should be a relative path to the release archive. For example, if the binaries are located in the 'bin' directory of the release archive, the parameter should be 'bin'.</p> | `false` | `""` |
+| `asset-name` | <p>Use this parameter to specify the name of the asset to download if the repo has multiple assets.</p> | `false` | `""` |
+<!-- action-docs-inputs source="action.yml" -->
+<!-- action-docs-outputs source="action.yml" -->
+
+<!-- action-docs-outputs source="action.yml" -->
+
+## Security
+
+Please report vulnerabilities privately via GitHub Security Advisories:
+
+https://github.com/jaxxstorm/action-install-gh-release/security/advisories/new
+
+## Finding a release
+
+By default, this action will look up the Platform and Architecture of the runner and use those values to interpolate and match a release package. **The release package name is first converted to lowercase**.
+
+Multiple match patterns are used to find a viable asset:
+
+- Machine Architecture (e.g. `x86_64`, `arm64`, `amd64`)
+- (optional) Vendor (e.g. `musl`, `glibc`, `gnu`)
+- OS (e.g. `linux`, `darwin`)
+- Glibc implementation (e.g. `musl`, `glibc`, `gnu`)
+- (optional, via `extension-matching`) Extension (e.g. `tar.gz`, `zip`)
+
+Natively, the action will only match the following platforms (operating systems): `linux`, `darwin`, `windows`.
 
 Some examples of matches:
 

@@ -7,14 +7,36 @@ on:
       - master
       - "releases/*"
 
+permissions:
+  contents: read
+
 jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: 24
+      - run: npm ci
+      - run: npm run test:unit:coverage
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: unit-test-coverage
+          path: coverage/
+      - run: npm run build
+
   connecti:
     strategy:
       matrix:
         runs-on: ["ubuntu-latest", "macos-latest"]
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: 24
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -22,48 +44,52 @@ jobs:
           repo: jaxxstorm/connecti
           arch: amd64
           cache: enable
+
   crd2pulumi:
     strategy:
       matrix:
-        runs-on: ["ubuntu-latest", "macos-latest"]
-    runs-on: ${{ matrix.runs-on }}
+        build:
+          - runs-on: "ubuntu-latest"
+            digest: ef1cb401b8f9f851a9259af30120e8f0d2aa1846cb7866bb2c83b1770998d4ae
+          - runs-on: "macos-latest"
+            digest: d96f62238b800a1eeb534fb768e3ac24e1f7454b6acd4dddbbe30ef7fe572b3e
+    runs-on: ${{ matrix.build.runs-on }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: 24
       - run: npm ci
       - run: npm run build
       - uses: ./
         with:
           repo: pulumi/crd2pulumi
           tag: v1.0.10
+          digest: ${{ matrix.build.digest }}
+
   change-aws-credentials:
     strategy:
       matrix:
-        runs-on: ["ubuntu-latest", "macos-latest"]
-    runs-on: ${{ matrix.runs-on }}
+        build:
+          - runs-on: "ubuntu-latest"
+            digest: 8e8e3db429bc181550a41dd585c776913dcc3d7735ff3c93056f22a5bf6c2c98
+          - runs-on: "macos-latest"
+            digest: 6fc42fd669311444b0d1c7768d05a8562af3397b79076cc49c07947d757f698d
+    runs-on: ${{ matrix.build.runs-on }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: 24
       - run: npm ci
       - run: npm run build
       - uses: ./
         with:
           repo: jaxxstorm/change-aws-credentials
           tag: v0.4.0
+          digest: ${{ matrix.build.digest }}
       - run: change-aws-credentials version
-  tf2pulumi:
-    strategy:
-      matrix:
-        version: ["v0.7.0", "v0.8.0", "latest"]
-        runs-on: ["ubuntu-latest", "macos-latest", "windows-latest"]
-    runs-on: ${{ matrix.runs-on }}
-    steps:
-      - uses: actions/checkout@v1
-      - run: npm ci
-      - run: npm run build
-      - uses: ./
-        with:
-          repo: pulumi/tf2pulumi
-          tag: ${{ matrix.version }}
-      - run: tf2pulumi version
+
   tfsec:
     strategy:
       matrix:
@@ -79,7 +105,10 @@ jobs:
             platform: windows
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: 24
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -89,6 +118,7 @@ jobs:
           platform: ${{ matrix.platform }}
           arch: ${{ matrix.arch }}
       - run: tfsec --version
+
   opentelemetry-ocb:
     strategy:
       matrix:
@@ -102,7 +132,10 @@ jobs:
             platform: darwin
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: 24
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -117,6 +150,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: ocb version
+
   mozilla-grcov:
     strategy:
       matrix:
@@ -130,7 +164,10 @@ jobs:
             platform: darwin
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: 24
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -139,10 +176,14 @@ jobs:
           tag: ${{ matrix.version }}
           platform: ${{ matrix.platform }}
           arch: ${{ matrix.arch }}
-          extension: "\\.bz2"
+          extension: ".bz2"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install TCMalloc as expected by grcov
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libunwind-dev libgoogle-perftools-dev
       - run: grcov --version
+
   wasmer:
     strategy:
       matrix:
@@ -154,7 +195,10 @@ jobs:
             platform: linux
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: 24
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -165,6 +209,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: wasmer --version
+
   prometheus:
     strategy:
       matrix:
@@ -176,13 +221,17 @@ jobs:
             platform: linux
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: 24
       - run: npm ci
       - run: npm run build
       - uses: ./
         with:
           repo: prometheus/prometheus
           tag: 'v2.37.9'
+          digest: 8740d2371c2a40f8473c80060fae5fd95829982f05095f361c28ac351c15ade8
           platform: linux
           arch: amd64
           cache: enable
@@ -190,27 +239,108 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: promtool --version
+
   cargo_make:
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        version: [ "latest" ]
-        runs-on: [ "ubuntu-latest" ]
-        arch: [ "amd64" ]
-        include:
-          - runs-on: "ubuntu-latest"
-            platform: linux
-    runs-on: ${{ matrix.runs-on }}
+        version: [ "0.36.12", "latest" ]
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: 24
       - run: npm ci
       - run: npm run build
       - uses: ./
         with:
           repo: sagiegurari/cargo-make
+          tag: ${{ matrix.version }}
           platform: unknown-linux-gnu
           arch: x86_64
+      - name: Verify both binaries are available on PATH
+        run: |
+          cargo-make --version
+          makers --version
+
+  sui:
+    strategy:
+      matrix:
+        version: [ "latest" ]
+        runs-on: [ "ubuntu-latest" ]
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: 24
+      - run: npm ci
+      - run: npm run build
+      - uses: ./
+        with:
+          repo: MystenLabs/sui
+          platform: ubuntu
           cache: enable
-          binaries-location: cargo-make-v0.36.12-x86_64-unknown-linux-gnu
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: cargo-make
+      - run: sui --version
+
+  wrpc: # Example of a project with artifacts not named the same as the main project
+    strategy:
+      matrix:
+        version: [ "latest" ]
+        runs-on: [ "ubuntu-latest" ]
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: 24
+      - run: npm ci
+      - run: npm run build
+      - uses: ./
+        with:
+          repo: bytecodealliance/wrpc
+          asset-name: wit-bindgen-wrpc
+          extension-matching: disable
+          rename-to: wit-bindgen-wrpc
+          chmod: 0755
+          cache: enable
+      - run: wit-bindgen-wrpc --version
+
+  terrabuild:
+    strategy:
+      matrix:
+        runs-on: ["ubuntu-latest"]
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: 24
+      - run: npm ci
+      - run: npm run build
+      - uses: ./
+        with:
+          repo: magnusopera/terrabuild
+          prerelease: true
+      - run: terrabuild version
+
+  weval: # Example of a project w/ .tar.xz artifact and extracted wrapping folder
+    strategy:
+      matrix:
+        version: [ "v0.3.2" ]
+        runs-on: [ "ubuntu-latest" ]
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: 24
+      - run: npm ci
+      - run: npm run build
+      - uses: ./
+        with:
+          repo: bytecodealliance/weval
+          tag: ${{ matrix.version }}
+          extension: ".xz"
+      - run:
+          weval --version
