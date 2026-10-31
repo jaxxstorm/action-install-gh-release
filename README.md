@@ -26,6 +26,11 @@ CI uploads the HTML and LCOV coverage output from the `coverage/` directory as t
 
 ### Private repositories
 
+Public repositories can be installed without a token, including when running
+locally with `nektos/act`. If neither `token` nor `GITHUB_TOKEN` is available,
+release lookups and downloads use anonymous requests. GitHub's lower
+unauthenticated API rate limits apply; supplying a token increases those limits.
+
 Pass a token with read access to the release repository using `with.token` when
 installing from a private repository. The token input takes precedence over the
 `GITHUB_TOKEN` environment variable; the environment variable is used only when
