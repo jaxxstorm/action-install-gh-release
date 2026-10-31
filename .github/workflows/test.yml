@@ -260,7 +260,7 @@ jobs:
           arch: x86_64
       - name: Verify both binaries are available on PATH
         run: |
-          cargo-make --version
+          cargo make --version
           makers --version
 
   sui:
