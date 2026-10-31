@@ -30,7 +30,7 @@
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {
-    "@types/lodash": "4.17.24",
+    "@types/lodash": "4.17.27",
     "@types/node": "25.9.1",
     "@vercel/ncc": "0.45.0",
     "action-docs": "2.5.1",
