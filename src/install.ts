@@ -50,7 +50,7 @@ export function resolvePlatform(inputPlatform: string, systemPlatform: NodeJS.Pl
         case "win32":
             return "windows";
         default:
-            throw new Error("Unsupported operating system - $this action is only released for Darwin, Linux and Windows");
+            throw new Error("Unsupported operating system - this action is only released for Darwin, Linux and Windows");
     }
 }
 
