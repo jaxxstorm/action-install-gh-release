@@ -5,6 +5,11 @@ import * as tc from "@actions/tool-cache";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { downloadReleaseAsset, installExtractedFiles, resolveToken } from "./install.js";
 
+vi.mock("fs", async importOriginal => {
+    const original = await importOriginal<typeof import("fs")>();
+    return { ...original, copyFileSync: vi.fn(original.copyFileSync) };
+});
+
 vi.mock("@actions/tool-cache", async importOriginal => ({
     ...await importOriginal<typeof import("@actions/tool-cache")>(),
     downloadTool: vi.fn()
@@ -62,6 +67,23 @@ describe("nested release archives (#63)", () => {
         const destination = fixtureDirectory();
         fs.mkdirSync(path.join(destination, "empty-wrapper"));
         expect(() => installExtractedFiles(destination)).toThrow("No files found");
+    });
+
+    it("propagates a copy failure without attempting subsequent copies", () => {
+        const destination = fixtureDirectory();
+        const wrapper = path.join(destination, "release");
+        fs.mkdirSync(wrapper);
+        fs.writeFileSync(path.join(wrapper, "first"), "first binary");
+        fs.writeFileSync(path.join(wrapper, "second"), "second binary");
+        const error = new Error("Failed to copy binary");
+        vi.mocked(fs.copyFileSync).mockImplementationOnce(() => {
+            throw error;
+        });
+
+        expect(() => installExtractedFiles(destination)).toThrow(error);
+        expect(fs.copyFileSync).toHaveBeenCalledTimes(1);
+        expect(fs.existsSync(path.join(destination, "first"))).toBe(false);
+        expect(fs.existsSync(path.join(destination, "second"))).toBe(false);
     });
 });
 
