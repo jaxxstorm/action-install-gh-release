@@ -1,10 +1,45 @@
 import * as path from "path";
+import * as fs from "fs";
 import lo from "lodash";
 import * as tc from "@actions/tool-cache";
 
 const { escapeRegExp } = lo;
 
 export const SUPPORTED_TAR_EXTENSIONS = [".tar.gz", ".tar.xz", ".tar.bz2", ".tgz"];
+
+export function resolveToken(inputToken: string, environmentToken: string | undefined): string {
+    return inputToken || environmentToken || "";
+}
+
+export async function downloadReleaseAsset(asset: ReleaseAsset, token: string): Promise<string> {
+    try {
+        return await tc.downloadTool(asset.url, undefined, token ? `token ${token}` : undefined, {
+            accept: "application/octet-stream"
+        });
+    } catch (error) {
+        if (error instanceof tc.HTTPError && error.httpStatusCode === 404) {
+            throw new Error(`Could not download release asset ${asset.name}: Not Found (404). For private repositories, supply a token with access to the release repository via the token input.`);
+        }
+        throw error;
+    }
+}
+
+export function installExtractedFiles(binaryDirectory: string): string[] {
+    // asset-name selects the archive, not the filenames inside it.
+    const files = fs.readdirSync(binaryDirectory, { recursive: true, withFileTypes: true })
+        .filter(item => item.isFile());
+    if (files.length === 0) {
+        throw new Error(`No files found in ${binaryDirectory}`);
+    }
+    return files.map(({ parentPath, name }) => {
+        const source = path.resolve(parentPath, name);
+        const destination = path.resolve(binaryDirectory, name);
+        if (source !== destination) {
+            fs.copyFileSync(source, destination);
+        }
+        return destination;
+    });
+}
 
 export interface ToolInfo {
     owner: string;
