@@ -240,6 +240,29 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: promtool --version
 
+  cargo_make:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: [ "0.36.12", "latest" ]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: 24
+      - run: npm ci
+      - run: npm run build
+      - uses: ./
+        with:
+          repo: sagiegurari/cargo-make
+          tag: ${{ matrix.version }}
+          platform: unknown-linux-gnu
+          arch: x86_64
+      - name: Verify both binaries are available on PATH
+        run: |
+          cargo make --version
+          makers --version
+
   sui:
     strategy:
       matrix:
