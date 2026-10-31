@@ -1,6 +1,6 @@
 {
   "name": "action-install-gh-release",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "private": true,
   "type": "module",
   "description": "Install a GitHub release binary in a GitHub Actions build environment",
