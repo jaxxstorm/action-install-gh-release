@@ -226,8 +226,9 @@ export function cachePrimaryKey(info: ToolInfo): string | undefined {
     if (info.tag === "latest") {
         return undefined;
     }
-    const matchingSuffix = `${info.platformMatching === false ? "/no-platform" : ""}${info.archMatching === false ? "/no-arch" : ""}`;
-    return "action-install-gh-release/" + `${info.owner}/${info.assetName}/${info.tag}/${info.osPlatform}-${info.osArch}${matchingSuffix}`;
+    // Cache restores prefix-match keys, so every mode needs a distinct namespace.
+    const matchingMode = `platform-${info.platformMatching !== false}-arch-${info.archMatching !== false}`;
+    return `action-install-gh-release/v2/${matchingMode}/${info.owner}/${info.assetName}/${info.tag}/${info.osPlatform}-${info.osArch}`;
 }
 
 export function toolPath(info: ToolInfo, cacheDirectory: string): string {

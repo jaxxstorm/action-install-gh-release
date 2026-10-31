@@ -257,12 +257,33 @@ describe("cache and path helpers", () => {
             osArch: "amd64"
         };
 
-        expect(cachePrimaryKey(info)).toBe("action-install-gh-release/owner/asset/v1.2.3/linux-amd64");
+        expect(cachePrimaryKey(info)).toBe("action-install-gh-release/v2/platform-true-arch-true/owner/asset/v1.2.3/linux-amd64");
         expect(cachePrimaryKey({ ...info, platformMatching: true, archMatching: true })).toBe(cachePrimaryKey(info));
-        expect(cachePrimaryKey({ ...info, archMatching: false })).toBe(`${cachePrimaryKey(info)}/no-arch`);
-        expect(cachePrimaryKey({ ...info, platformMatching: false })).toBe(`${cachePrimaryKey(info)}/no-platform`);
-        expect(cachePrimaryKey({ ...info, platformMatching: false, archMatching: false })).toBe(`${cachePrimaryKey(info)}/no-platform/no-arch`);
         expect(toolPath(info, "/tool-cache")).toBe("/tool-cache/owner/asset/v1.2.3/linux-amd64");
+    });
+
+    it("prevents prefix cache restores across matching modes and legacy keys", () => {
+        const info = {
+            owner: "owner",
+            assetName: "asset",
+            repoName: "repo",
+            tag: "v1.2.3",
+            osPlatform: "linux",
+            osArch: "amd64"
+        };
+        const keys = [true, false].flatMap(platformMatching =>
+            [true, false].map(archMatching => cachePrimaryKey({ ...info, platformMatching, archMatching })!)
+        );
+        const legacyKey = "action-install-gh-release/owner/asset/v1.2.3/linux-amd64";
+        const legacyKeys = ["", "/no-arch", "/no-platform", "/no-platform/no-arch"].map(suffix => legacyKey + suffix);
+
+        expect(new Set(keys).size).toBe(4);
+        for (const key of keys) {
+            // Simulate the cache service's prefix lookup with the exact entry absent.
+            const otherKeys = [...keys.filter(candidate => candidate !== key), ...legacyKeys];
+            expect(otherKeys.find(candidate => candidate.startsWith(key))).toBeUndefined();
+            expect(legacyKeys.some(legacy => key.startsWith(legacy))).toBe(false);
+        }
     });
 });
 
