@@ -108,6 +108,31 @@ steps:
       arch: amd64
 ```
 
+### Asset names without a platform or architecture
+
+Set `arch-matching: disable` for assets such as `cli-linux` that omit the
+architecture. Set `platform-matching: disable` when the operating system is
+missing, or disable both for names such as `cli`. Both default to `enable`.
+Use `asset-name` to narrow the selection when a release contains multiple assets;
+it remains a substring filter, and the first matching asset is selected.
+
+```yaml
+steps:
+  - uses: jaxxstorm/action-install-gh-release@master
+    with:
+      repo: my-org/cli
+      asset-name: cli-linux
+      arch-matching: disable
+      extension-matching: disable
+      rename-to: cli
+      chmod: '0755'
+      token: ${{ secrets.MY_PAT }}
+```
+
+For an asset named simply `cli`, use `asset-name: cli` and also set
+`platform-matching: disable`. Extension matching is controlled independently;
+archives can keep the default extension matching enabled.
+
 ### Grab from a private repository
 
 Use a `repo` scoped [Personal Access Token (PAT)](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) that has been created on a user with access to the private repository.
@@ -235,6 +260,8 @@ can be specified to control whether to treat the asset as binary and/or modify i
 | `prerelease` | <p>Consider prerelease for latest tag</p> | `false` | `false` |
 | `platform` | <p>OS Platform to match in release package. Specify this parameter if the repository releases do not follow a normal convention otherwise it will be auto-detected.</p> | `false` | `""` |
 | `arch` | <p>OS Architecture to match in release package. Specify this parameter if the repository releases do not follow a normal convention otherwise it will be auto-detected.</p> | `false` | `""` |
+| `platform-matching` | <p>Enable/disable platform matching in the release asset name. Set to disable when asset names omit the operating system.</p> | `false` | `enable` |
+| `arch-matching` | <p>Enable/disable architecture matching in the release asset name. Set to disable when asset names omit the architecture.</p> | `false` | `enable` |
 | `extension` | <p>Custom file extension to match in release package.  Specify this parameter if the repository releases do not provide a .tar.gz or .zip format release.</p> | `false` | `""` |
 | `extension-matching` | <p>Enable/disable file extension matching in release package.  Specify this parameter if the repository releases do not have a file extension e.g. they are pure binaries.</p> | `false` | `enable` |
 | `rename-to` | <p>When installing a release that is not an archive, e.g. a pure binary, this controls how the downloaded release asset is renamed.  Specify this parameter if installing a non-archive release.</p> | `false` | `""` |

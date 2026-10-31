@@ -25,6 +25,14 @@ inputs:
   arch:
     description: "OS Architecture to match in release package. Specify this parameter if the repository releases do not follow a normal convention otherwise it will be auto-detected."
     required: false
+  platform-matching:
+    description: "Enable/disable platform matching in the release asset name. Set to disable when asset names omit the operating system."
+    required: false
+    default: enable
+  arch-matching:
+    description: "Enable/disable architecture matching in the release asset name. Set to disable when asset names omit the architecture."
+    required: false
+    default: enable
   extension:
     description: "Custom file extension to match in release package.  Specify this parameter if the repository releases do not provide a .tar.gz or .zip format release."
     required: false

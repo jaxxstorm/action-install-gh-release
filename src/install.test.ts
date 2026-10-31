@@ -85,6 +85,42 @@ describe("getExtensionMatchRegexForm", () => {
 });
 
 describe("findMatchingAsset", () => {
+    const matchingOptions = {
+        assetName: "cli",
+        osPlatform: "linux",
+        osArchMatch: ["x86_64", "x64", "amd64"],
+        extensionMatchRegexForm: ""
+    };
+
+    it("selects cli-linux from the assets in #72 when architecture matching is disabled", () => {
+        const release = releaseWithAssets("sha256sums.txt.asc", "cli-alpine", "cli-linux", "cli-win.exe");
+        expect(findMatchingAsset(release, matchingOptions, logger)).toBeUndefined();
+        expect(findMatchingAsset(release, {
+            ...matchingOptions, archMatching: false
+        }, logger)?.name).toBe("cli-linux");
+    });
+
+    it("can disable platform matching while still requiring the architecture", () => {
+        expect(findMatchingAsset(releaseWithAssets("cli-arm64", "cli-amd64"), {
+            ...matchingOptions, platformMatching: false
+        }, logger)?.name).toBe("cli-amd64");
+    });
+
+    it("can disable both checks while retaining name and extension filters", () => {
+        expect(findMatchingAsset(releaseWithAssets("other.zip", "cli.zip.sha256", "cli.zip"), {
+            ...matchingOptions,
+            platformMatching: false,
+            archMatching: false,
+            extensionMatchRegexForm: "\\.zip"
+        }, logger)?.name).toBe("cli.zip");
+    });
+
+    it("supports a bare binary with all matching checks disabled", () => {
+        expect(findMatchingAsset(releaseWithAssets("sha256sums.txt.asc", "cli"), {
+            ...matchingOptions, platformMatching: false, archMatching: false
+        }, logger)?.name).toBe("cli");
+    });
+
     it("matches a default archive by platform and arch aliases", () => {
         const asset = findMatchingAsset(
             releaseWithAssets("tool_darwin_amd64.tar.gz", "tool_linux_arm64.tar.gz"),
@@ -221,8 +257,33 @@ describe("cache and path helpers", () => {
             osArch: "amd64"
         };
 
-        expect(cachePrimaryKey(info)).toBe("action-install-gh-release/owner/asset/v1.2.3/linux-amd64");
+        expect(cachePrimaryKey(info)).toBe("action-install-gh-release/v2/platform-true-arch-true/owner/asset/v1.2.3/linux-amd64");
+        expect(cachePrimaryKey({ ...info, platformMatching: true, archMatching: true })).toBe(cachePrimaryKey(info));
         expect(toolPath(info, "/tool-cache")).toBe("/tool-cache/owner/asset/v1.2.3/linux-amd64");
+    });
+
+    it("prevents prefix cache restores across matching modes and legacy keys", () => {
+        const info = {
+            owner: "owner",
+            assetName: "asset",
+            repoName: "repo",
+            tag: "v1.2.3",
+            osPlatform: "linux",
+            osArch: "amd64"
+        };
+        const keys = [true, false].flatMap(platformMatching =>
+            [true, false].map(archMatching => cachePrimaryKey({ ...info, platformMatching, archMatching })!)
+        );
+        const legacyKey = "action-install-gh-release/owner/asset/v1.2.3/linux-amd64";
+        const legacyKeys = ["", "/no-arch", "/no-platform", "/no-platform/no-arch"].map(suffix => legacyKey + suffix);
+
+        expect(new Set(keys).size).toBe(4);
+        for (const key of keys) {
+            // Simulate the cache service's prefix lookup with the exact entry absent.
+            const otherKeys = [...keys.filter(candidate => candidate !== key), ...legacyKeys];
+            expect(otherKeys.find(candidate => candidate.startsWith(key))).toBeUndefined();
+            expect(legacyKeys.some(legacy => key.startsWith(legacy))).toBe(false);
+        }
     });
 });
 
