@@ -3,21 +3,23 @@ import * as path from "path";
 import * as fs from "fs";
 import * as cache from "@actions/cache";
 import * as core from "@actions/core";
-import * as tc from "@actions/tool-cache";
 import { Octokit } from "@octokit/rest";
 import { throttling } from "@octokit/plugin-throttling";
 import { hashFile } from 'hasha';
 import {
     cachePrimaryKey,
+    downloadReleaseAsset,
     findMatchingAsset,
     getExtensionMatchRegexForm,
     getExtractFlags,
     getExtractFn,
     getOutputPath,
     getRelease,
+    installExtractedFiles,
     moveDownloadedFile,
     resolveArch,
     resolvePlatform,
+    resolveToken,
     toolPath,
     type ToolInfo,
     verifyDigest
@@ -27,7 +29,7 @@ const ThrottlingOctokit = Octokit.plugin(throttling) as typeof Octokit;
 
 async function run() {
     try {
-        const token = process.env["GITHUB_TOKEN"] || core.getInput("token");
+        const token = resolveToken(core.getInput("token"), process.env["GITHUB_TOKEN"]);
         const octokit = new ThrottlingOctokit({
             throttle: {
                 onRateLimit: (retryAfter, options) => {
@@ -124,7 +126,7 @@ async function run() {
         }
         const url = asset.url;
         core.info(`Downloading ${asset.name} from ${url}`);
-        const binPath = await tc.downloadTool(url, undefined, `token ${token}`, { accept: "application/octet-stream" });
+        const binPath = await downloadReleaseAsset(asset, token);
         const digest = core.getInput("digest");
         if (digest !== "") {
             core.info(`==> Will verify the downloaded release asset ${asset.name} with digest ${digest}`);
@@ -142,23 +144,11 @@ async function run() {
                 await extractFn(binPath, dest);
             }
             core.info(`Automatically extracted release asset ${asset.name} to ${dest}`);
-            const binFiles = fs.readdirSync(finalBinLocation, { recursive: true, withFileTypes: true }).filter(item => item.name.includes(assetName) && item.isFile());
-            if (binFiles.length === 0) {
-                throw new Error(`No files found in ${finalBinLocation}`);
-            } else if (binFiles.length > 1 && renameTo !== "") {
+            const binFiles = installExtractedFiles(finalBinLocation);
+            if (binFiles.length > 1 && renameTo !== "") {
                 core.warning("rename-to parameter ignored when installing                 a release from an archive that contains multiple files.");
             }
-            for (const { parentPath, name } of binFiles) {
-                const currentBinPath = path.resolve(path.join(parentPath, name));
-                const finalBinPath = path.resolve(path.join(finalBinLocation, name));
-                if (currentBinPath != finalBinPath) {
-                    try {
-                        core.debug(`detected binary not in folder on PATH, copying binary from [${currentBinPath}] to [${finalBinPath}]`);
-                        fs.copyFileSync(currentBinPath, finalBinPath);
-                    } catch (copyErr) {
-                        core.setFailed(`Failed to copy binary to folder in PATH: ${copyErr}`);
-                    }
-                }
+            for (const finalBinPath of binFiles) {
                 if (chmodTo !== "") {
                     try {
                         fs.chmodSync(finalBinPath, chmodTo);

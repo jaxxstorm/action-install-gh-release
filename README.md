@@ -24,6 +24,26 @@ CI uploads the HTML and LCOV coverage output from the `coverage/` directory as t
 
 ## Usage
 
+### Private repositories
+
+Pass a token with read access to the release repository using `with.token` when
+installing from a private repository. The token input takes precedence over the
+`GITHUB_TOKEN` environment variable; the environment variable is used only when
+the input is empty. By default, the input is `${{ github.token }}`, which normally
+only has access to the repository running the workflow.
+
+The action downloads assets through the authenticated GitHub API using the
+`application/octet-stream` media type. Opening a private asset's API URL in a
+browser without the same authentication can return `Not Found` even after a
+successful installation. A download that actually returns HTTP 404 fails the
+action and reports token-access guidance.
+
+### Archives with nested directories
+
+Files in nested archive directories are copied into the directory added to PATH.
+Use `binaries-location` to limit this to a particular directory inside the archive.
+`asset-name` selects the release archive; it does not filter filenames inside it.
+
 ### Grab the Latest Version
 
 ```yaml
