@@ -13,19 +13,29 @@ permissions:
 jobs:
   unit:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [24, 26]
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
-          node-version: 24
+          node-version: ${{ matrix.node }}
       - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm audit --omit=dev
       - run: npm run test:unit:coverage
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
-          name: unit-test-coverage
+          name: unit-test-coverage-node-${{ matrix.node }}
           path: coverage/
       - run: npm run build
+      - name: Verify the complete generated bundle
+        run: |
+          git diff --exit-code -- lib
+          test -z "$(git ls-files --others --exclude-standard -- lib)"
 
   connecti:
     strategy:
@@ -36,7 +46,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
-          node-version: 24
+          node-version: 26
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -58,7 +68,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
-          node-version: 24
+          node-version: 26
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -80,7 +90,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
-          node-version: 24
+          node-version: 26
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -108,7 +118,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
-          node-version: 24
+          node-version: 26
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -135,7 +145,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
-          node-version: 24
+          node-version: 26
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -167,7 +177,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
-          node-version: 24
+          node-version: 26
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -198,7 +208,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
-          node-version: 24
+          node-version: 26
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -224,7 +234,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
-          node-version: 24
+          node-version: 26
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -249,7 +259,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
-          node-version: 24
+          node-version: 26
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -273,7 +283,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
-          node-version: 24
+          node-version: 26
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -293,7 +303,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
-          node-version: 24
+          node-version: 26
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -315,7 +325,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
-          node-version: 24
+          node-version: 26
       - run: npm ci
       - run: npm run build
       - uses: ./
@@ -334,7 +344,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
-          node-version: 24
+          node-version: 26
       - run: npm ci
       - run: npm run build
       - uses: ./

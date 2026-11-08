@@ -1,4 +1,5 @@
 __tests__/runner/*
+.build/
 
 node_modules
 

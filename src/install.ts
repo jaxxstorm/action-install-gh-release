@@ -18,7 +18,7 @@ export async function downloadReleaseAsset(asset: ReleaseAsset, token: string): 
         });
     } catch (error) {
         if (error instanceof tc.HTTPError && error.httpStatusCode === 404) {
-            throw new Error(`Could not download release asset ${asset.name}: Not Found (404). For private repositories, supply a token with access to the release repository via the token input.`);
+            throw new Error(`Could not download release asset ${asset.name}: Not Found (404). For private repositories, supply a token with access to the release repository via the token input.`, { cause: error });
         }
         throw error;
     }

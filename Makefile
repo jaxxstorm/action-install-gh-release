@@ -30,15 +30,15 @@ dev:
 	npm install --save-dev
 
 prepare:
-	$(NCC) build $(ENTRY_POINT) -o $(BUILD_DIR)
+	npm run build
 
 # Bundle the action into the runtime directory used by action.yml
 build: clean
-	$(NCC) build $(ENTRY_POINT) -o $(BUILD_DIR)
+	npm run build
 
 # Type-check the TypeScript sources without writing output
 typecheck:
-	$(TS_C) --noEmit
+	npm run typecheck
 
 # Lint the TypeScript code
 lint:

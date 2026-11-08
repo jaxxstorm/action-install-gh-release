@@ -118,6 +118,12 @@ describe("private release downloads (#56)", () => {
         );
     });
 
+    it("preserves the original 404 as the diagnostic cause", async () => {
+        const error = new tc.HTTPError(404);
+        vi.mocked(tc.downloadTool).mockRejectedValue(error);
+        await expect(downloadReleaseAsset(asset, "token")).rejects.toHaveProperty("cause", error);
+    });
+
     it("preserves other download failures", async () => {
         const error = new tc.HTTPError(403);
         vi.mocked(tc.downloadTool).mockRejectedValue(error);
