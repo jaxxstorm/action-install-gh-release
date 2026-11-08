@@ -54,10 +54,10 @@ async function run() {
         }
         let tag = core.getInput("tag");
         tag = !tag ? "latest" : tag;
-        let prerelease = core.getInput("prerelease") === "true";
+        const prerelease = core.getInput("prerelease") === "true";
         const cacheEnabled = core.getInput("cache") === "enable" && tag !== "latest" && tag !== "";
         const [owner, repoName] = repo.split("/");
-        let assetName = core.getInput("asset-name");
+        const assetName = core.getInput("asset-name");
         const platformMatching = core.getInput("platform-matching") !== "disable";
         const archMatching = core.getInput("arch-matching") !== "disable";
         if (!platformMatching) {
@@ -66,15 +66,15 @@ async function run() {
         if (!archMatching) {
             core.info("==> Architecture matching disabled");
         }
-        let osPlatform = resolvePlatform(core.getInput("platform"), os.platform());
+        const osPlatform = resolvePlatform(core.getInput("platform"), os.platform());
         core.info(`==> System reported platform: ${os.platform()}`);
         core.info(`==> Using platform: ${osPlatform}`);
         const { osArch, osArchMatch } = resolveArch(core.getInput("arch"), os.arch());
         core.info(`==> System reported arch: ${os.arch()}`);
         core.info(`==> Using arch: ${osArch}`);
         const extMatching = core.getInput("extension-matching") === "enable";
-        let extension = core.getInput("extension");
-        let extMatchRegexForm = getExtensionMatchRegexForm(extMatching, extension);
+        const extension = core.getInput("extension");
+        const extMatchRegexForm = getExtensionMatchRegexForm(extMatching, extension);
         if (extMatching) {
             if (extension === "") {
                 core.info(`==> Using default file extension matching: ${extMatchRegexForm}`);
@@ -84,15 +84,15 @@ async function run() {
         } else {
             core.info("==> File extension matching disabled");
         }
-        let renameTo = core.getInput("rename-to");
+        const renameTo = core.getInput("rename-to");
         if (renameTo !== "") {
             core.info(`==> Will rename downloaded release to ${renameTo}`);
         }
-        let chmodTo = core.getInput("chmod");
+        const chmodTo = core.getInput("chmod");
         if (chmodTo !== "") {
             core.info(`==> Will chmod downloaded release asset to ${chmodTo}`);
         }
-        let toolInfo: ToolInfo = {
+        const toolInfo: ToolInfo = {
             owner,
             repoName,
             assetName,
@@ -102,17 +102,17 @@ async function run() {
             platformMatching,
             archMatching
         };
-        let dest = toolPath(toolInfo, getCacheDirectory());
-        let binariesLocation = core.getInput("binaries-location");
+        const dest = toolPath(toolInfo, getCacheDirectory());
+        const binariesLocation = core.getInput("binaries-location");
         let finalBinLocation = dest;
         if (binariesLocation !== "") {
             core.info(`==> Given bin location: ${binariesLocation}`);
             finalBinLocation = path.join(dest, binariesLocation);
         }
         core.info(`==> Binaries will be located at: ${finalBinLocation}`);
-        let cacheKey = cachePrimaryKey(toolInfo);
+        const cacheKey = cachePrimaryKey(toolInfo);
         if (cacheEnabled && cacheKey !== undefined) {
-            let ok = await cache.restoreCache([dest], cacheKey);
+            const ok = await cache.restoreCache([dest], cacheKey);
             if (ok !== undefined) {
                 core.info(`Found ${assetName} in the cache: ${dest}`);
                 core.info(`Adding ${finalBinLocation} to the path`);
@@ -120,11 +120,11 @@ async function run() {
                 return;
             }
         }
-        let release = await getRelease(octokit.rest.repos, owner, repoName, tag, prerelease);
+        const release = await getRelease(octokit.rest.repos, owner, repoName, tag, prerelease);
         if (!release) {
             throw new Error(`Could not find release for tag ${tag}${prerelease ? " with prerelease" : ""}.`);
         }
-        let asset = findMatchingAsset(release, {
+        const asset = findMatchingAsset(release, {
             assetName,
             osPlatform,
             osArchMatch,
@@ -198,7 +198,7 @@ async function run() {
                         core.setFailed(`Failed to chmod ${outputPath} to ${chmodTo}: ${chmodErr}`);
                     }
                 }
-            } catch (err) {
+            } catch {
                 core.setFailed(`Failed to create required output directory ${dest}`);
             }
         }

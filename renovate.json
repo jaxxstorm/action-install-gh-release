@@ -1,6 +1,16 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    'config:best-practices'
+  "extends": ["config:best-practices"],
+  "packageRules": [
+    {
+      "description": "Vitest and coverage have exact-version peers and must move together",
+      "matchPackageNames": ["vitest", "@vitest/**"],
+      "groupName": "vitest"
+    },
+    {
+      "description": "Legacy compiler API for typescript-eslint only; @typescript/native is the TypeScript 7 build compiler",
+      "matchDepNames": ["typescript"],
+      "allowedVersions": "<6.1.0"
+    }
   ]
 }

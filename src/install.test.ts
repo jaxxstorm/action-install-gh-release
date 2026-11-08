@@ -13,8 +13,7 @@ import {
     resolvePlatform,
     toolPath,
     verifyDigest,
-    type Release,
-    type ReleaseAsset
+    type Release
 } from "./install.js";
 
 const logger = {
