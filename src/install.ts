@@ -125,7 +125,7 @@ export function getExtensionMatchRegexForm(extMatching: boolean, extension: stri
     }
 
     if (extension === "") {
-        return "\\.(tar.gz|tar.xz|zip|tgz)";
+        return "\\.(tar\\.gz|tar\\.xz|zip|tgz)";
     }
 
     return escapeRegExp(extension);

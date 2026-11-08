@@ -71,7 +71,7 @@ describe("resolveArch", () => {
 
 describe("getExtensionMatchRegexForm", () => {
     it("uses default archive extensions when enabled", () => {
-        expect(getExtensionMatchRegexForm(true, "")).toBe("\\.(tar.gz|tar.xz|zip|tgz)");
+        expect(getExtensionMatchRegexForm(true, "")).toBe("\\.(tar\\.gz|tar\\.xz|zip|tgz)");
     });
 
     it("escapes custom extensions", () => {
