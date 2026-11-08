@@ -10,8 +10,9 @@
     "clean": "node -e \"for (const dir of ['.build', 'lib']) require('node:fs').rmSync(dir, {recursive:true, force:true})\"",
     "compile": "node node_modules/@typescript/native/bin/tsc --outDir .build",
     "typecheck": "node node_modules/@typescript/native/bin/tsc --noEmit",
-    "lint": "eslint src",
-    "docs": "action-docs --update-readme",
+    "lint": "eslint src scripts",
+    "docs": "node scripts/generate-docs.mjs",
+    "test:fuzz": "vitest run src/asset-properties.test.js",
     "test:unit": "vitest run",
     "test:unit:coverage": "vitest run --coverage"
   },
@@ -41,12 +42,13 @@
     "@typescript/native": "npm:typescript@7.0.2",
     "@vercel/ncc": "0.45.0",
     "@vitest/coverage-v8": "5.1.0",
-    "action-docs": "2.5.1",
     "eslint": "^10.14.0",
+    "fast-check": "4.10.2",
     "globals": "17.14.0",
     "typescript": "6.0.3",
     "typescript-eslint": "8.72.1",
-    "vitest": "5.1.0"
+    "vitest": "5.1.0",
+    "yaml": "2.9.1"
   },
   "overrides": {
     "@actions/cache": {

@@ -24,7 +24,9 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint
-      - run: npm audit --omit=dev
+      - run: npm audit
+      - run: npm run docs
+      - run: git diff --exit-code -- README.md
       - run: npm run test:unit:coverage
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
