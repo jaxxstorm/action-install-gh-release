@@ -35,7 +35,8 @@ export function installExtractedFiles(binaryDirectory: string): string[] {
         const source = path.resolve(parentPath, name);
         const destination = path.resolve(binaryDirectory, name);
         if (source !== destination) {
-            fs.copyFileSync(source, destination);
+            // Exclusively create the destination so existing files and links cannot be overwritten.
+            fs.copyFileSync(source, destination, fs.constants.COPYFILE_EXCL);
         }
         return destination;
     });

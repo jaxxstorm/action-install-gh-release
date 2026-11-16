@@ -48,6 +48,7 @@ action and reports token-access guidance.
 Files in nested archive directories are copied into the directory added to PATH.
 Use `binaries-location` to limit this to a particular directory inside the archive.
 `asset-name` selects the release archive; it does not filter filenames inside it.
+Copying fails if a destination already exists, including duplicate filenames and symbolic links.
 
 ### Grab the Latest Version
 
@@ -88,6 +89,8 @@ steps:
 
 When the upstream project publishes stable release digests, pass `digest` so the action verifies
 the downloaded asset before extracting or installing it.
+Supplying `digest` bypasses cache restores and saves, even with `cache: enable`, so every run
+downloads and verifies the asset.
 
 ```yaml
 steps:
