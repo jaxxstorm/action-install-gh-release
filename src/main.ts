@@ -55,7 +55,9 @@ async function run() {
         let tag = core.getInput("tag");
         tag = !tag ? "latest" : tag;
         const prerelease = core.getInput("prerelease") === "true";
-        const cacheEnabled = core.getInput("cache") === "enable" && tag !== "latest" && tag !== "";
+        const digest = core.getInput("digest");
+        // Cached installations cannot be checked against a downloaded archive's digest.
+        const cacheEnabled = core.getInput("cache") === "enable" && tag !== "latest" && tag !== "" && digest === "";
         const [owner, repoName] = repo.split("/");
         const assetName = core.getInput("asset-name");
         const platformMatching = core.getInput("platform-matching") !== "disable";
@@ -139,7 +141,6 @@ async function run() {
         const url = asset.url;
         core.info(`Downloading ${asset.name} from ${url}`);
         const binPath = await downloadReleaseAsset(asset, token);
-        const digest = core.getInput("digest");
         if (digest !== "") {
             core.info(`==> Will verify the downloaded release asset ${asset.name} with digest ${digest}`);
 

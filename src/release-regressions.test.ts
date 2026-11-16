@@ -69,6 +69,46 @@ describe("nested release archives (#63)", () => {
         expect(() => installExtractedFiles(destination)).toThrow("No files found");
     });
 
+    it.each(["file", "symlink", "dangling symlink", "hard link"])("refuses to replace an existing %s when flattening", kind => {
+        const directory = fixtureDirectory();
+        const destination = path.join(directory, "bin");
+        const wrapper = path.join(destination, "release");
+        const target = path.join(directory, "existing");
+        const output = path.join(destination, "tool");
+        fs.mkdirSync(wrapper, { recursive: true });
+        fs.writeFileSync(path.join(wrapper, "tool"), "new binary");
+        if (kind !== "dangling symlink") {
+            fs.writeFileSync(target, "original");
+        }
+        if (kind === "file") {
+            fs.writeFileSync(output, "original");
+        } else if (kind === "hard link") {
+            fs.linkSync(target, output);
+        } else {
+            fs.symlinkSync(target, output, "file");
+        }
+
+        expect(() => installExtractedFiles(destination)).toThrow();
+        if (kind === "dangling symlink") {
+            expect(fs.existsSync(target)).toBe(false);
+            expect(fs.lstatSync(output).isSymbolicLink()).toBe(true);
+        } else {
+            expect(fs.readFileSync(target, "utf8")).toBe("original");
+            expect(fs.readFileSync(output, "utf8")).toBe("original");
+        }
+    });
+
+    it("refuses duplicate flattened filenames without overwriting the first copy", () => {
+        const destination = fixtureDirectory();
+        for (const name of ["first", "second"]) {
+            fs.mkdirSync(path.join(destination, name));
+            fs.writeFileSync(path.join(destination, name, "tool"), name);
+        }
+
+        expect(() => installExtractedFiles(destination)).toThrow();
+        expect(fs.readFileSync(path.join(destination, "tool"), "utf8")).toBe("first");
+    });
+
     it("propagates a copy failure without attempting subsequent copies", () => {
         const destination = fixtureDirectory();
         const wrapper = path.join(destination, "release");
