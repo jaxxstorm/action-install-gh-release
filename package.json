@@ -52,7 +52,7 @@
   },
   "overrides": {
     "@actions/cache": {
-      "@actions/glob": "0.6.1"
+      "@actions/glob": "0.7.0"
     },
     "minimatch@>=7 <11.0.1": "11.0.5"
   }
